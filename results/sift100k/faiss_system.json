@@ -1,0 +1,8 @@
+{
+  "cpu_model": "AMD Ryzen 5 5600G with Radeon Graphics",
+  "logical_cpus": 12,
+  "ram_gib": 15.0,
+  "search_threads": 1,
+  "query_mode": "batch",
+  "build_threads": 12
+}

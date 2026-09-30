@@ -1,0 +1,5 @@
+dataset,corpus_size,num_queries,original_dim,search_dim,raw_128d_float32_MiB,pca_impl,pca_sample,pca_seed,pca_var_explained
+sift1m,1000000,10000,128,128,488.3,-,-,-,-
+sift100k,100000,10000,128,128,48.8,-,-,-,-
+quora,522931,10000,1024,128,255.3,"sklearn.decomposition.PCA(n_components=128, svd_solver='covariance_eigh')",200000,42,0.6177
+nq,2681468,3452,1024,128,1309.3,"sklearn.decomposition.PCA(n_components=128, svd_solver='covariance_eigh')",200000,42,0.5991

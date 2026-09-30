@@ -216,3 +216,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ---- project data / artifacts (never commit datasets or indices) ----
+dataset/
+indices/
+logs/
+*.npy
+*.index

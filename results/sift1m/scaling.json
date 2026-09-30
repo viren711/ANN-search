@@ -1,0 +1,27 @@
+{
+  "dataset": "sift1m",
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "threads": 12,
+  "measurements": [
+    {
+      "N": 100000,
+      "build_time_s": 16.05050075397594,
+      "peak_rss_mib": 696.0078125
+    },
+    {
+      "N": 250000,
+      "build_time_s": 56.929634403961245,
+      "peak_rss_mib": 1309.1484375
+    },
+    {
+      "N": 500000,
+      "build_time_s": 133.16019470995525,
+      "peak_rss_mib": 1474.00390625
+    }
+  ],
+  "fit_exponent": 1.3181375936078514,
+  "full_N": 1000000,
+  "estimated_full_build_s": 339.8171445178272
+}

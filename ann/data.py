@@ -10,7 +10,8 @@ PROCESSED = ROOT / "dataset" / "processed"
 INDICES = ROOT / "indices"
 RESULTS = ROOT / "results"
 
-DATASETS = ["sift1m", "sift100k", "quora", "nq"]
+DATASETS = ["sift1m", "sift100k", "quora", "nq", "msmarco"]
+SPLIT = {"quora": "test", "nq": "test", "msmarco": "dev"}   # evaluation query split per BEIR set
 
 
 # ---------------------------------------------------------------- TEXMEX formats

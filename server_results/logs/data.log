@@ -1,0 +1,8 @@
+[sift1m] prepared data present
+[sift100k] prepared data present
+[quora] prepared data present
+[nq] prepared data present
+[ok] sift1m    base (1000000, 128) query (10000, 128) | gt_ids.npy present
+[ok] sift100k  base (100000, 128) query (10000, 128) | gt_ids.npy present
+[ok] quora     base (522931, 128) query (10000, 128) | gt_ids.npy present
+[ok] nq        base (2681468, 128) query (3452, 128) | gt_ids.npy present

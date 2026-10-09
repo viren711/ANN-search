@@ -1,0 +1,23 @@
+NAME      MODEL                     ROTA TRAN     SIZE MOUNTPOINT
+sda       Micron_5300_MTFDDAK480TDS    0 sata   447.1G 
+├─sda1                                 0          128M 
+└─sda2                                 0          200G 
+  └─md126                              0        199.9G /
+sdb       Micron_5300_MTFDDAK480TDS    0 sata   447.1G 
+├─sdb1                                 0          128M 
+└─sdb2                                 0          200G 
+  └─md126                              0        199.9G /
+sdc       Micron_5400_MTFDDAK3T8TGA    0 sata     3.5T 
+└─sdc1                                 0          3.5T 
+  └─md127                              0            7T /users
+sdd       Micron_5400_MTFDDAK3T8TGA    0 sata     3.5T 
+└─sdd1                                 0          3.5T 
+  └─md127                              0            7T /users
+sde       Micron_5400_MTFDDAK3T8TGA    0 sata     3.5T 
+└─sde1                                 0          3.5T 
+  └─md127                              0            7T /users
+sdf       Micron_5400_MTFDDAK3T8TGA    0 sata     3.5T 
+sdg       Micron_5400_MTFDDAK3T8TGA    0 sata     3.5T 
+└─sdg1                                 0          3.5T 
+  └─md127                              0            7T /users
+sr0       Virtual_CDROM0               1 usb     1024M 

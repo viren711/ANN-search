@@ -1,0 +1,25 @@
+{
+  "dataset": "sift1m",
+  "N": 1000000,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "seed": 0,
+  "mode": "batched",
+  "build_threads": 96,
+  "build_time_s": 52.75444603699725,
+  "pass_times_s": [
+    14.205694951000623,
+    37.14240099606104
+  ],
+  "peak_build_rss_mib": 1324.9375,
+  "rss_before_build_mib": 667.60546875,
+  "vectors_mib": 488.28125,
+  "avg_out_degree": 57.845908,
+  "max_out_degree": 64,
+  "min_out_degree": 7,
+  "graph_bytes": 260000000,
+  "cpu": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz",
+  "serialized_graph_bytes": 260000723,
+  "index_bytes_with_vectors": 772000723
+}

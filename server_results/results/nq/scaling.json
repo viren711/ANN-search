@@ -1,0 +1,27 @@
+{
+  "dataset": "nq",
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "threads": 96,
+  "measurements": [
+    {
+      "N": 100000,
+      "build_time_s": 3.1081123400945216,
+      "peak_rss_mib": 1561.76953125
+    },
+    {
+      "N": 250000,
+      "build_time_s": 11.12365583202336,
+      "peak_rss_mib": 2994.3359375
+    },
+    {
+      "N": 500000,
+      "build_time_s": 24.955323711037636,
+      "peak_rss_mib": 3218.87890625
+    }
+  ],
+  "fit_exponent": 1.2993706223235946,
+  "full_N": 2681468,
+  "estimated_full_build_s": 228.83565291682916
+}

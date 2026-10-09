@@ -1,0 +1,194 @@
+[skip] /users/pg25/virenmehta/ANN-search/dist/ANN-search/indices/vamana/sift100k_R64_L100_a1.2 already built
+{'method': 'vamana', 'R': 64, 'alpha': 1.2, 'L_build': 100, 'L_search': 10, 'param': 'R=64,a=1.2,Lb=100,Ls=10', 'build_time_s': 3.3483, 'index_bytes': 77200000, 'dist_evals_per_query': 613.4752, 'expanded_per_query': 14.0286, '1-recall@1': 0.9677, '10-recall@10': 0.9382, 'mean_latency_ms': 0.0427, 'qps': 23399.1446, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0122}
+{'method': 'vamana', 'R': 64, 'alpha': 1.2, 'L_build': 100, 'L_search': 20, 'param': 'R=64,a=1.2,Lb=100,Ls=20', 'build_time_s': 3.3483, 'index_bytes': 77200000, 'dist_evals_per_query': 885.7838, 'expanded_per_query': 23.521, '1-recall@1': 0.9904, '10-recall@10': 0.9817, 'mean_latency_ms': 0.0691, 'qps': 14479.8764, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0169}
+{'method': 'vamana', 'R': 64, 'alpha': 1.2, 'L_build': 100, 'L_search': 30, 'param': 'R=64,a=1.2,Lb=100,Ls=30', 'build_time_s': 3.3483, 'index_bytes': 77200000, 'dist_evals_per_query': 1131.2896, 'expanded_per_query': 33.2783, '1-recall@1': 0.9964, '10-recall@10': 0.9926, 'mean_latency_ms': 0.0966, 'qps': 10350.9737, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0241}
+{'method': 'vamana', 'R': 64, 'alpha': 1.2, 'L_build': 100, 'L_search': 50, 'param': 'R=64,a=1.2,Lb=100,Ls=50', 'build_time_s': 3.3483, 'index_bytes': 77200000, 'dist_evals_per_query': 1565.2224, 'expanded_per_query': 53.0256, '1-recall@1': 0.9988, '10-recall@10': 0.9981, 'mean_latency_ms': 0.1387, 'qps': 7211.3339, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0113}
+{'method': 'vamana', 'R': 64, 'alpha': 1.2, 'L_build': 100, 'L_search': 75, 'param': 'R=64,a=1.2,Lb=100,Ls=75', 'build_time_s': 3.3483, 'index_bytes': 77200000, 'dist_evals_per_query': 2037.5075, 'expanded_per_query': 77.8748, '1-recall@1': 0.9995, '10-recall@10': 0.9994, 'mean_latency_ms': 0.1902, 'qps': 5257.8448, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0172}
+{'method': 'vamana', 'R': 64, 'alpha': 1.2, 'L_build': 100, 'L_search': 100, 'param': 'R=64,a=1.2,Lb=100,Ls=100', 'build_time_s': 3.3483, 'index_bytes': 77200000, 'dist_evals_per_query': 2457.7258, 'expanded_per_query': 102.7632, '1-recall@1': 0.9998, '10-recall@10': 0.9997, 'mean_latency_ms': 0.2375, 'qps': 4210.741, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0078}
+{'method': 'vamana', 'R': 64, 'alpha': 1.2, 'L_build': 100, 'L_search': 150, 'param': 'R=64,a=1.2,Lb=100,Ls=150', 'build_time_s': 3.3483, 'index_bytes': 77200000, 'dist_evals_per_query': 3197.4532, 'expanded_per_query': 152.618, '1-recall@1': 0.9998, '10-recall@10': 0.9999, 'mean_latency_ms': 0.3252, 'qps': 3075.4912, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0186}
+{'method': 'vamana', 'R': 64, 'alpha': 1.2, 'L_build': 100, 'L_search': 200, 'param': 'R=64,a=1.2,Lb=100,Ls=200', 'build_time_s': 3.3483, 'index_bytes': 77200000, 'dist_evals_per_query': 3846.0332, 'expanded_per_query': 202.5251, '1-recall@1': 0.9998, '10-recall@10': 0.9999, 'mean_latency_ms': 0.41, 'qps': 2438.7798, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.01}
+  pass alpha=1.0: 0.6s  avg deg 17.63  max deg 32
+  pass alpha=1.2: 1.4s  avg deg 31.54  max deg 32
+{
+  "dataset": "sift100k",
+  "N": 100000,
+  "R": 32,
+  "L_build": 100,
+  "alpha": 1.2,
+  "seed": 0,
+  "mode": "batched",
+  "build_threads": 96,
+  "build_time_s": 2.008243634016253,
+  "pass_times_s": [
+    0.5525437289616093,
+    1.3590477230027318
+  ],
+  "peak_build_rss_mib": 471.90625,
+  "rss_before_build_mib": 413.5,
+  "vectors_mib": 48.828125,
+  "avg_out_degree": 31.5382,
+  "max_out_degree": 32,
+  "min_out_degree": 7,
+  "graph_bytes": 13200000,
+  "cpu": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz",
+  "serialized_graph_bytes": 13200718,
+  "index_bytes_with_vectors": 64400718,
+  "path": "/users/pg25/virenmehta/ANN-search/dist/ANN-search/indices/vamana/sift100k_R32_L100_a1.2"
+}
+{'method': 'vamana', 'R': 32, 'alpha': 1.2, 'L_build': 100, 'L_search': 10, 'param': 'R=32,a=1.2,Lb=100,Ls=10', 'build_time_s': 2.0082, 'index_bytes': 64400000, 'dist_evals_per_query': 364.0401, 'expanded_per_query': 15.417, '1-recall@1': 0.862, '10-recall@10': 0.8293, 'mean_latency_ms': 0.0217, 'qps': 46105.6877, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0565}
+{'method': 'vamana', 'R': 32, 'alpha': 1.2, 'L_build': 100, 'L_search': 20, 'param': 'R=32,a=1.2,Lb=100,Ls=20', 'build_time_s': 2.0082, 'index_bytes': 64400000, 'dist_evals_per_query': 519.1012, 'expanded_per_query': 24.9362, '1-recall@1': 0.9328, '10-recall@10': 0.9158, 'mean_latency_ms': 0.0367, 'qps': 27268.5096, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0114}
+{'method': 'vamana', 'R': 32, 'alpha': 1.2, 'L_build': 100, 'L_search': 30, 'param': 'R=32,a=1.2,Lb=100,Ls=30', 'build_time_s': 2.0082, 'index_bytes': 64400000, 'dist_evals_per_query': 658.3171, 'expanded_per_query': 34.5303, '1-recall@1': 0.9605, '10-recall@10': 0.9483, 'mean_latency_ms': 0.0511, 'qps': 19581.9286, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0938}
+{'method': 'vamana', 'R': 32, 'alpha': 1.2, 'L_build': 100, 'L_search': 50, 'param': 'R=32,a=1.2,Lb=100,Ls=50', 'build_time_s': 2.0082, 'index_bytes': 64400000, 'dist_evals_per_query': 909.8392, 'expanded_per_query': 54.0388, '1-recall@1': 0.9804, '10-recall@10': 0.9745, 'mean_latency_ms': 0.0766, 'qps': 13048.1854, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0107}
+{'method': 'vamana', 'R': 32, 'alpha': 1.2, 'L_build': 100, 'L_search': 75, 'param': 'R=32,a=1.2,Lb=100,Ls=75', 'build_time_s': 2.0082, 'index_bytes': 64400000, 'dist_evals_per_query': 1191.0056, 'expanded_per_query': 78.7049, '1-recall@1': 0.9878, '10-recall@10': 0.9859, 'mean_latency_ms': 0.1068, 'qps': 9364.3829, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0029}
+{'method': 'vamana', 'R': 32, 'alpha': 1.2, 'L_build': 100, 'L_search': 100, 'param': 'R=32,a=1.2,Lb=100,Ls=100', 'build_time_s': 2.0082, 'index_bytes': 64400000, 'dist_evals_per_query': 1446.7177, 'expanded_per_query': 103.5193, '1-recall@1': 0.9929, '10-recall@10': 0.9912, 'mean_latency_ms': 0.1355, 'qps': 7381.1823, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0046}
+{'method': 'vamana', 'R': 32, 'alpha': 1.2, 'L_build': 100, 'L_search': 150, 'param': 'R=32,a=1.2,Lb=100,Ls=150', 'build_time_s': 2.0082, 'index_bytes': 64400000, 'dist_evals_per_query': 1905.6378, 'expanded_per_query': 153.2662, '1-recall@1': 0.9968, '10-recall@10': 0.9955, 'mean_latency_ms': 0.192, 'qps': 5208.5357, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0155}
+{'method': 'vamana', 'R': 32, 'alpha': 1.2, 'L_build': 100, 'L_search': 200, 'param': 'R=32,a=1.2,Lb=100,Ls=200', 'build_time_s': 2.0082, 'index_bytes': 64400000, 'dist_evals_per_query': 2316.9873, 'expanded_per_query': 203.1165, '1-recall@1': 0.9978, '10-recall@10': 0.9973, 'mean_latency_ms': 0.2487, 'qps': 4021.4274, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0031}
+  pass alpha=1.0: 0.8s  avg deg 18.28  max deg 87
+  pass alpha=1.2: 2.2s  avg deg 60.45  max deg 96
+{
+  "dataset": "sift100k",
+  "N": 100000,
+  "R": 96,
+  "L_build": 100,
+  "alpha": 1.2,
+  "seed": 0,
+  "mode": "batched",
+  "build_threads": 96,
+  "build_time_s": 3.2467246958985925,
+  "pass_times_s": [
+    0.7703687719767913,
+    2.2338932569837198
+  ],
+  "peak_build_rss_mib": 484.45703125,
+  "rss_before_build_mib": 484.1015625,
+  "vectors_mib": 48.828125,
+  "avg_out_degree": 60.45385,
+  "max_out_degree": 96,
+  "min_out_degree": 8,
+  "graph_bytes": 38800000,
+  "cpu": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz",
+  "serialized_graph_bytes": 38800719,
+  "index_bytes_with_vectors": 90000719,
+  "path": "/users/pg25/virenmehta/ANN-search/dist/ANN-search/indices/vamana/sift100k_R96_L100_a1.2"
+}
+{'method': 'vamana', 'R': 96, 'alpha': 1.2, 'L_build': 100, 'L_search': 10, 'param': 'R=96,a=1.2,Lb=100,Ls=10', 'build_time_s': 3.2467, 'index_bytes': 90000000, 'dist_evals_per_query': 757.3318, 'expanded_per_query': 13.6152, '1-recall@1': 0.9799, '10-recall@10': 0.9531, 'mean_latency_ms': 0.0496, 'qps': 20147.2936, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0108}
+{'method': 'vamana', 'R': 96, 'alpha': 1.2, 'L_build': 100, 'L_search': 20, 'param': 'R=96,a=1.2,Lb=100,Ls=20', 'build_time_s': 3.2467, 'index_bytes': 90000000, 'dist_evals_per_query': 1088.7857, 'expanded_per_query': 23.18, '1-recall@1': 0.9961, '10-recall@10': 0.9887, 'mean_latency_ms': 0.0812, 'qps': 12314.3507, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0114}
+{'method': 'vamana', 'R': 96, 'alpha': 1.2, 'L_build': 100, 'L_search': 30, 'param': 'R=96,a=1.2,Lb=100,Ls=30', 'build_time_s': 3.2467, 'index_bytes': 90000000, 'dist_evals_per_query': 1386.4989, 'expanded_per_query': 32.9816, '1-recall@1': 0.9986, '10-recall@10': 0.996, 'mean_latency_ms': 0.1134, 'qps': 8821.4532, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0187}
+{'method': 'vamana', 'R': 96, 'alpha': 1.2, 'L_build': 100, 'L_search': 50, 'param': 'R=96,a=1.2,Lb=100,Ls=50', 'build_time_s': 3.2467, 'index_bytes': 90000000, 'dist_evals_per_query': 1909.3149, 'expanded_per_query': 52.774, '1-recall@1': 0.9995, '10-recall@10': 0.999, 'mean_latency_ms': 0.1672, 'qps': 5982.4389, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0062}
+{'method': 'vamana', 'R': 96, 'alpha': 1.2, 'L_build': 100, 'L_search': 75, 'param': 'R=96,a=1.2,Lb=100,Ls=75', 'build_time_s': 3.2467, 'index_bytes': 90000000, 'dist_evals_per_query': 2474.3395, 'expanded_per_query': 77.6469, '1-recall@1': 0.9997, '10-recall@10': 0.9997, 'mean_latency_ms': 0.2282, 'qps': 4382.5838, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0022}
+{'method': 'vamana', 'R': 96, 'alpha': 1.2, 'L_build': 100, 'L_search': 100, 'param': 'R=96,a=1.2,Lb=100,Ls=100', 'build_time_s': 3.2467, 'index_bytes': 90000000, 'dist_evals_per_query': 2974.3332, 'expanded_per_query': 102.5609, '1-recall@1': 0.9998, '10-recall@10': 0.9999, 'mean_latency_ms': 0.288, 'qps': 3471.622, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0062}
+{'method': 'vamana', 'R': 96, 'alpha': 1.2, 'L_build': 100, 'L_search': 150, 'param': 'R=96,a=1.2,Lb=100,Ls=150', 'build_time_s': 3.2467, 'index_bytes': 90000000, 'dist_evals_per_query': 3849.1454, 'expanded_per_query': 152.4377, '1-recall@1': 0.9998, '10-recall@10': 0.9999, 'mean_latency_ms': 0.3937, 'qps': 2539.9988, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0107}
+{'method': 'vamana', 'R': 96, 'alpha': 1.2, 'L_build': 100, 'L_search': 200, 'param': 'R=96,a=1.2,Lb=100,Ls=200', 'build_time_s': 3.2467, 'index_bytes': 90000000, 'dist_evals_per_query': 4609.789, 'expanded_per_query': 202.3537, '1-recall@1': 0.9998, '10-recall@10': 0.9999, 'mean_latency_ms': 0.491, 'qps': 2036.6546, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.004}
+  pass alpha=1.0: 0.7s  avg deg 18.77  max deg 64
+  pass alpha=1.0: 0.7s  avg deg 15.80  max deg 61
+{
+  "dataset": "sift100k",
+  "N": 100000,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.0,
+  "seed": 0,
+  "mode": "batched",
+  "build_threads": 96,
+  "build_time_s": 1.4763746579410508,
+  "pass_times_s": [
+    0.6509243010077626,
+    0.6703107600333169
+  ],
+  "peak_build_rss_mib": 529.22265625,
+  "rss_before_build_mib": 564.2890625,
+  "vectors_mib": 48.828125,
+  "avg_out_degree": 15.79908,
+  "max_out_degree": 61,
+  "min_out_degree": 2,
+  "graph_bytes": 26000000,
+  "cpu": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz",
+  "serialized_graph_bytes": 26000719,
+  "index_bytes_with_vectors": 77200719,
+  "path": "/users/pg25/virenmehta/ANN-search/dist/ANN-search/indices/vamana/sift100k_R64_L100_a1.0"
+}
+{'method': 'vamana', 'R': 64, 'alpha': 1.0, 'L_build': 100, 'L_search': 10, 'param': 'R=64,a=1.0,Lb=100,Ls=10', 'build_time_s': 1.4764, 'index_bytes': 77200000, 'dist_evals_per_query': 305.8963, 'expanded_per_query': 15.9475, '1-recall@1': 0.8628, '10-recall@10': 0.786, 'mean_latency_ms': 0.0197, 'qps': 50878.7963, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0668}
+{'method': 'vamana', 'R': 64, 'alpha': 1.0, 'L_build': 100, 'L_search': 20, 'param': 'R=64,a=1.0,Lb=100,Ls=20', 'build_time_s': 1.4764, 'index_bytes': 77200000, 'dist_evals_per_query': 432.4163, 'expanded_per_query': 25.2696, '1-recall@1': 0.9459, '10-recall@10': 0.904, 'mean_latency_ms': 0.0332, 'qps': 30115.8992, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.007}
+{'method': 'vamana', 'R': 64, 'alpha': 1.0, 'L_build': 100, 'L_search': 30, 'param': 'R=64,a=1.0,Lb=100,Ls=30', 'build_time_s': 1.4764, 'index_bytes': 77200000, 'dist_evals_per_query': 551.1465, 'expanded_per_query': 34.6986, '1-recall@1': 0.9712, '10-recall@10': 0.9473, 'mean_latency_ms': 0.0465, 'qps': 21501.8565, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0059}
+{'method': 'vamana', 'R': 64, 'alpha': 1.0, 'L_build': 100, 'L_search': 50, 'param': 'R=64,a=1.0,Lb=100,Ls=50', 'build_time_s': 1.4764, 'index_bytes': 77200000, 'dist_evals_per_query': 777.3567, 'expanded_per_query': 54.0822, '1-recall@1': 0.9887, '10-recall@10': 0.9789, 'mean_latency_ms': 0.0707, 'qps': 14139.1389, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.008}
+{'method': 'vamana', 'R': 64, 'alpha': 1.0, 'L_build': 100, 'L_search': 75, 'param': 'R=64,a=1.0,Lb=100,Ls=75', 'build_time_s': 1.4764, 'index_bytes': 77200000, 'dist_evals_per_query': 1040.5883, 'expanded_per_query': 78.7005, '1-recall@1': 0.9961, '10-recall@10': 0.9913, 'mean_latency_ms': 0.1002, 'qps': 9975.6378, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.006}
+{'method': 'vamana', 'R': 64, 'alpha': 1.0, 'L_build': 100, 'L_search': 100, 'param': 'R=64,a=1.0,Lb=100,Ls=100', 'build_time_s': 1.4764, 'index_bytes': 77200000, 'dist_evals_per_query': 1286.5424, 'expanded_per_query': 103.4777, '1-recall@1': 0.9982, '10-recall@10': 0.9958, 'mean_latency_ms': 0.1296, 'qps': 7717.4716, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0057}
+{'method': 'vamana', 'R': 64, 'alpha': 1.0, 'L_build': 100, 'L_search': 150, 'param': 'R=64,a=1.0,Lb=100,Ls=150', 'build_time_s': 1.4764, 'index_bytes': 77200000, 'dist_evals_per_query': 1739.7779, 'expanded_per_query': 153.1932, '1-recall@1': 0.9996, '10-recall@10': 0.9983, 'mean_latency_ms': 0.1872, 'qps': 5341.4758, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0082}
+{'method': 'vamana', 'R': 64, 'alpha': 1.0, 'L_build': 100, 'L_search': 200, 'param': 'R=64,a=1.0,Lb=100,Ls=200', 'build_time_s': 1.4764, 'index_bytes': 77200000, 'dist_evals_per_query': 2154.2975, 'expanded_per_query': 203.0072, '1-recall@1': 0.9999, '10-recall@10': 0.9992, 'mean_latency_ms': 0.2438, 'qps': 4101.4599, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.009}
+  pass alpha=1.0: 0.7s  avg deg 18.77  max deg 64
+  pass alpha=1.4: 3.7s  avg deg 62.64  max deg 64
+{
+  "dataset": "sift100k",
+  "N": 100000,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.4,
+  "seed": 0,
+  "mode": "batched",
+  "build_threads": 96,
+  "build_time_s": 4.532688281964511,
+  "pass_times_s": [
+    0.6632129499921575,
+    3.702504517044872
+  ],
+  "peak_build_rss_mib": 517.25390625,
+  "rss_before_build_mib": 564.2890625,
+  "vectors_mib": 48.828125,
+  "avg_out_degree": 62.64445,
+  "max_out_degree": 64,
+  "min_out_degree": 17,
+  "graph_bytes": 26000000,
+  "cpu": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz",
+  "serialized_graph_bytes": 26000718,
+  "index_bytes_with_vectors": 77200718,
+  "path": "/users/pg25/virenmehta/ANN-search/dist/ANN-search/indices/vamana/sift100k_R64_L100_a1.4"
+}
+{'method': 'vamana', 'R': 64, 'alpha': 1.4, 'L_build': 100, 'L_search': 10, 'param': 'R=64,a=1.4,Lb=100,Ls=10', 'build_time_s': 4.5327, 'index_bytes': 77200000, 'dist_evals_per_query': 610.9608, 'expanded_per_query': 14.1277, '1-recall@1': 0.9362, '10-recall@10': 0.9126, 'mean_latency_ms': 0.0365, 'qps': 27368.3548, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0252}
+{'method': 'vamana', 'R': 64, 'alpha': 1.4, 'L_build': 100, 'L_search': 20, 'param': 'R=64,a=1.4,Lb=100,Ls=20', 'build_time_s': 4.5327, 'index_bytes': 77200000, 'dist_evals_per_query': 863.6295, 'expanded_per_query': 23.6434, '1-recall@1': 0.9731, '10-recall@10': 0.9638, 'mean_latency_ms': 0.0597, 'qps': 16738.3411, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0139}
+{'method': 'vamana', 'R': 64, 'alpha': 1.4, 'L_build': 100, 'L_search': 30, 'param': 'R=64,a=1.4,Lb=100,Ls=30', 'build_time_s': 4.5327, 'index_bytes': 77200000, 'dist_evals_per_query': 1085.2504, 'expanded_per_query': 33.3577, '1-recall@1': 0.9855, '10-recall@10': 0.9807, 'mean_latency_ms': 0.0802, 'qps': 12471.5003, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0088}
+{'method': 'vamana', 'R': 64, 'alpha': 1.4, 'L_build': 100, 'L_search': 50, 'param': 'R=64,a=1.4,Lb=100,Ls=50', 'build_time_s': 4.5327, 'index_bytes': 77200000, 'dist_evals_per_query': 1472.1274, 'expanded_per_query': 53.0728, '1-recall@1': 0.9943, '10-recall@10': 0.9918, 'mean_latency_ms': 0.1213, 'qps': 8245.0881, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0055}
+{'method': 'vamana', 'R': 64, 'alpha': 1.4, 'L_build': 100, 'L_search': 75, 'param': 'R=64,a=1.4,Lb=100,Ls=75', 'build_time_s': 4.5327, 'index_bytes': 77200000, 'dist_evals_per_query': 1888.5837, 'expanded_per_query': 77.8838, '1-recall@1': 0.9973, '10-recall@10': 0.9961, 'mean_latency_ms': 0.1661, 'qps': 6021.8215, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0068}
+{'method': 'vamana', 'R': 64, 'alpha': 1.4, 'L_build': 100, 'L_search': 100, 'param': 'R=64,a=1.4,Lb=100,Ls=100', 'build_time_s': 4.5327, 'index_bytes': 77200000, 'dist_evals_per_query': 2255.9735, 'expanded_per_query': 102.7625, '1-recall@1': 0.9982, '10-recall@10': 0.9977, 'mean_latency_ms': 0.208, 'qps': 4808.7811, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0033}
+{'method': 'vamana', 'R': 64, 'alpha': 1.4, 'L_build': 100, 'L_search': 150, 'param': 'R=64,a=1.4,Lb=100,Ls=150', 'build_time_s': 4.5327, 'index_bytes': 77200000, 'dist_evals_per_query': 2899.0009, 'expanded_per_query': 152.6063, '1-recall@1': 0.9994, '10-recall@10': 0.9991, 'mean_latency_ms': 0.2876, 'qps': 3477.1068, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0025}
+{'method': 'vamana', 'R': 64, 'alpha': 1.4, 'L_build': 100, 'L_search': 200, 'param': 'R=64,a=1.4,Lb=100,Ls=200', 'build_time_s': 4.5327, 'index_bytes': 77200000, 'dist_evals_per_query': 3459.3297, 'expanded_per_query': 202.5045, '1-recall@1': 0.9996, '10-recall@10': 0.9995, 'mean_latency_ms': 0.3628, 'qps': 2756.7138, 'timing_queries': 1000, 'timing_repeats': 5, 'timing_rel_spread': 0.0025}
+ R  alpha  L_build  L_search  1-recall@1  10-recall@10  mean_latency_ms          qps  dist_evals_per_query  expanded_per_query
+64    1.2      100        10      0.9677       0.93816         0.042737 23399.144574              613.4752             14.0286
+64    1.2      100        20      0.9904       0.98169         0.069061 14479.876396              885.7838             23.5210
+64    1.2      100        30      0.9964       0.99262         0.096609 10350.973669             1131.2896             33.2783
+64    1.2      100        50      0.9988       0.99812         0.138671  7211.333860             1565.2224             53.0256
+64    1.2      100        75      0.9995       0.99938         0.190192  5257.844842             2037.5075             77.8748
+64    1.2      100       100      0.9998       0.99967         0.237488  4210.741037             2457.7258            102.7632
+64    1.2      100       150      0.9998       0.99992         0.325151  3075.491242             3197.4532            152.6180
+64    1.2      100       200      0.9998       0.99995         0.410041  2438.779751             3846.0332            202.5251
+32    1.2      100        10      0.8620       0.82925         0.021689 46105.687740              364.0401             15.4170
+32    1.2      100        20      0.9328       0.91576         0.036672 27268.509643              519.1012             24.9362
+32    1.2      100        30      0.9605       0.94829         0.051067 19581.928595              658.3171             34.5303
+32    1.2      100        50      0.9804       0.97453         0.076639 13048.185412              909.8392             54.0388
+32    1.2      100        75      0.9878       0.98590         0.106788  9364.382868             1191.0056             78.7049
+32    1.2      100       100      0.9929       0.99119         0.135480  7381.182289             1446.7177            103.5193
+32    1.2      100       150      0.9968       0.99552         0.191993  5208.535681             1905.6378            153.2662
+32    1.2      100       200      0.9978       0.99727         0.248668  4021.427371             2316.9873            203.1165
+96    1.2      100        10      0.9799       0.95315         0.049634 20147.293627              757.3318             13.6152
+96    1.2      100        20      0.9961       0.98869         0.081206 12314.350689             1088.7857             23.1800
+96    1.2      100        30      0.9986       0.99598         0.113360  8821.453226             1386.4989             32.9816
+96    1.2      100        50      0.9995       0.99904         0.167156  5982.438863             1909.3149             52.7740
+96    1.2      100        75      0.9997       0.99973         0.228176  4382.583788             2474.3395             77.6469
+96    1.2      100       100      0.9998       0.99985         0.288050  3471.621993             2974.3332            102.5609
+96    1.2      100       150      0.9998       0.99991         0.393701  2539.998816             3849.1454            152.4377
+96    1.2      100       200      0.9998       0.99993         0.491001  2036.654560             4609.7890            202.3537
+64    1.0      100        10      0.8628       0.78602         0.019655 50878.796290              305.8963             15.9475
+64    1.0      100        20      0.9459       0.90404         0.033205 30115.899211              432.4163             25.2696
+64    1.0      100        30      0.9712       0.94733         0.046508 21501.856519              551.1465             34.6986
+64    1.0      100        50      0.9887       0.97886         0.070726 14139.138890              777.3567             54.0822
+64    1.0      100        75      0.9961       0.99133         0.100244  9975.637800             1040.5883             78.7005
+64    1.0      100       100      0.9982       0.99580         0.129576  7717.471582             1286.5424            103.4777
+64    1.0      100       150      0.9996       0.99831         0.187214  5341.475763             1739.7779            153.1932
+64    1.0      100       200      0.9999       0.99925         0.243816  4101.459930             2154.2975            203.0072
+64    1.4      100        10      0.9362       0.91263         0.036539 27368.354844              610.9608             14.1277
+64    1.4      100        20      0.9731       0.96379         0.059743 16738.341072              863.6295             23.6434
+64    1.4      100        30      0.9855       0.98073         0.080183 12471.500288             1085.2504             33.3577
+64    1.4      100        50      0.9943       0.99176         0.121284  8245.088087             1472.1274             53.0728
+64    1.4      100        75      0.9973       0.99607         0.166063  6021.821478             1888.5837             77.8838
+64    1.4      100       100      0.9982       0.99767         0.207953  4808.781126             2255.9735            102.7625
+64    1.4      100       150      0.9994       0.99906         0.287595  3477.106773             2899.0009            152.6063
+64    1.4      100       200      0.9996       0.99946         0.362751  2756.713774             3459.3297            202.5045

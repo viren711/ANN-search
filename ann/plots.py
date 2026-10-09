@@ -3,6 +3,15 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib import ticker
+
+
+def _log_x(ax):
+    """Log x-axis with readable plain-number ticks at 1-2-5 steps (no overlapping 10^x labels)."""
+    ax.set_xscale("log")
+    ax.xaxis.set_major_locator(ticker.LogLocator(base=10, subs=(1.0, 2.0, 5.0)))
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda v, _: f"{v:g}"))
+    ax.xaxis.set_minor_formatter(ticker.NullFormatter())
 
 
 def plot_recall_latency(series, path, title, exact=None, x="mean_latency_ms", y="10-recall@10"):
@@ -13,7 +22,7 @@ def plot_recall_latency(series, path, title, exact=None, x="mean_latency_ms", y=
         ax.plot(df[x], df[y], marker="o", label=label)
     if exact is not None and len(exact):
         ax.scatter(exact[x], exact[y], marker="*", s=160, c="k", zorder=5, label="FAISS exact")
-    ax.set_xscale("log")
+    _log_x(ax)
     ax.set_xlabel("mean latency / query (ms, log)" if x == "mean_latency_ms" else x)
     ax.set_ylabel(y)
     ax.set_title(title)
@@ -30,7 +39,7 @@ def plot_xy(series, path, title, x, y, logx=False):
         df = df.sort_values(x)
         ax.plot(df[x], df[y], marker="o", label=label)
     if logx:
-        ax.set_xscale("log")
+        _log_x(ax)
     ax.set_xlabel(x)
     ax.set_ylabel(y)
     ax.set_title(title)

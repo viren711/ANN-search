@@ -1,0 +1,22 @@
+{
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "seed": 0,
+  "mode": "batched",
+  "max_batch_frac": 0.02,
+  "pass_times_s": [
+    14.205694951000623,
+    37.14240099606104
+  ],
+  "build_time_s": 52.752337965066545,
+  "entry_point": 123742,
+  "entry_point_procedure": "database point nearest to the dataset mean",
+  "start": 123742,
+  "N": 1000000,
+  "D": 128,
+  "avg_out_degree": 57.845908,
+  "max_out_degree": 64,
+  "min_out_degree": 7,
+  "graph_bytes": 260000000
+}

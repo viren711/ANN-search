@@ -1,0 +1,11 @@
+{
+  "name": "sift100k",
+  "corpus_size": 100000,
+  "num_queries": 10000,
+  "original_dim": 128,
+  "search_dim": 128,
+  "metric": "L2",
+  "source": "ftp://ftp.irisa.fr/local/texmex/corpus/sift.tar.gz (first 100000 base vectors)",
+  "gt_k": 100,
+  "gt_time_s": 1.4870042380644009
+}

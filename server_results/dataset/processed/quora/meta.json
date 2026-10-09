@@ -1,0 +1,16 @@
+{
+  "name": "quora",
+  "corpus_size": 522931,
+  "num_queries": 10000,
+  "original_dim": 1024,
+  "search_dim": 128,
+  "metric": "L2 on L2-normalised vectors",
+  "source": "CohereLabs/beir-embed-english-v3 (quora, test queries)",
+  "pca_impl": "sklearn.decomposition.PCA(n_components=128, svd_solver='covariance_eigh')",
+  "pca_fit_sample_size": 200000,
+  "pca_seed": 42,
+  "pca_variance_explained": 0.6176644563674927,
+  "pca_fit_time_s": 11.85108549403958,
+  "gt_k": 100,
+  "gt_time_s": 7.922599832993001
+}

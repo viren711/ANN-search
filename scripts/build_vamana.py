@@ -25,7 +25,12 @@ def index_dir(dataset, R, L, alpha, subset=None):
     return INDICES / "vamana" / tag
 
 
-def build(dataset, R, L, alpha, seed=0, threads=12, mode="batched", subset=None, save=True):
+def build(dataset, R, L, alpha, seed=0, threads=12, mode="batched", subset=None, save=True,
+          skip_existing=False):
+    d = index_dir(dataset, R, L, alpha, subset)
+    if skip_existing and (d / "build_stats.json").exists():
+        print(f"[skip] {d} already built")
+        return None, json.loads((d / "build_stats.json").read_text())
     set_threads(threads)
     xb = load_base(dataset)
     if subset:
@@ -43,7 +48,6 @@ def build(dataset, R, L, alpha, seed=0, threads=12, mode="batched", subset=None,
                  peak_build_rss_mib=mem.peak_mib, rss_before_build_mib=rss_before,
                  vectors_mib=xb.nbytes / 2**20, **st, cpu=system_info(threads, "-")["cpu_model"])
     if save:
-        d = index_dir(dataset, R, L, alpha, subset)
         stats["serialized_graph_bytes"] = idx.save(d)
         stats["index_bytes_with_vectors"] = stats["serialized_graph_bytes"] + xb.nbytes
         (d / "build_stats.json").write_text(json.dumps(stats, indent=2))
@@ -62,5 +66,6 @@ if __name__ == "__main__":
     ap.add_argument("--threads", type=int, default=12)
     ap.add_argument("--mode", default="batched", choices=["batched", "serial"])
     ap.add_argument("--subset", type=int, default=None)
+    ap.add_argument("--skip-existing", action="store_true")
     a = ap.parse_args()
-    build(a.dataset, a.R, a.L, a.alpha, a.seed, a.threads, a.mode, a.subset)
+    build(a.dataset, a.R, a.L, a.alpha, a.seed, a.threads, a.mode, a.subset, skip_existing=a.skip_existing)

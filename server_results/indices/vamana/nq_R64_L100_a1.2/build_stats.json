@@ -1,0 +1,25 @@
+{
+  "dataset": "nq",
+  "N": 2681468,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "seed": 0,
+  "mode": "batched",
+  "build_threads": 96,
+  "build_time_s": 160.89326206303667,
+  "pass_times_s": [
+    54.842387819080614,
+    102.43160591798369
+  ],
+  "peak_build_rss_mib": 3232.9453125,
+  "rss_before_build_mib": 1484.6328125,
+  "vectors_mib": 1309.310546875,
+  "avg_out_degree": 61.03496629458192,
+  "max_out_degree": 64,
+  "min_out_degree": 4,
+  "graph_bytes": 697181680,
+  "cpu": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz",
+  "serialized_graph_bytes": 697182414,
+  "index_bytes_with_vectors": 2070094030
+}

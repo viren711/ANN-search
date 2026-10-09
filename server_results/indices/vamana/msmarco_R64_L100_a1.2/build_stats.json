@@ -1,0 +1,25 @@
+{
+  "dataset": "msmarco",
+  "N": 8841823,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "seed": 0,
+  "mode": "batched",
+  "build_threads": 96,
+  "build_time_s": 459.06568837095983,
+  "pass_times_s": [
+    140.2197688369779,
+    306.23485432902817
+  ],
+  "peak_build_rss_mib": 10136.73828125,
+  "rss_before_build_mib": 4496.94921875,
+  "vectors_mib": 4317.29638671875,
+  "avg_out_degree": 55.208714763912376,
+  "max_out_degree": 64,
+  "min_out_degree": 4,
+  "graph_bytes": 2298873980,
+  "cpu": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz",
+  "serialized_graph_bytes": 2298874715,
+  "index_bytes_with_vectors": 6825888091
+}

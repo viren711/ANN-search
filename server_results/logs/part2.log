@@ -1,0 +1,119 @@
+[skip] /users/pg25/virenmehta/ANN-search/dist/ANN-search/indices/vamana/sift100k_R64_L100_a1.2 already built
+  pass alpha=1.0: 14.2s  avg deg 23.78  max deg 64
+  pass alpha=1.2: 37.1s  avg deg 57.85  max deg 64
+{
+  "dataset": "sift1m",
+  "N": 1000000,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "seed": 0,
+  "mode": "batched",
+  "build_threads": 96,
+  "build_time_s": 52.75444603699725,
+  "pass_times_s": [
+    14.205694951000623,
+    37.14240099606104
+  ],
+  "peak_build_rss_mib": 1324.9375,
+  "rss_before_build_mib": 667.60546875,
+  "vectors_mib": 488.28125,
+  "avg_out_degree": 57.845908,
+  "max_out_degree": 64,
+  "min_out_degree": 7,
+  "graph_bytes": 260000000,
+  "cpu": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz",
+  "serialized_graph_bytes": 260000723,
+  "index_bytes_with_vectors": 772000723,
+  "path": "/users/pg25/virenmehta/ANN-search/dist/ANN-search/indices/vamana/sift1m_R64_L100_a1.2"
+}
+  pass alpha=1.0: 7.3s  avg deg 23.76  max deg 64
+  pass alpha=1.2: 14.9s  avg deg 56.91  max deg 64
+{
+  "dataset": "quora",
+  "N": 522931,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "seed": 0,
+  "mode": "batched",
+  "build_threads": 96,
+  "build_time_s": 23.009990817052312,
+  "pass_times_s": [
+    7.335347917047329,
+    14.914353864034638
+  ],
+  "peak_build_rss_mib": 779.26953125,
+  "rss_before_build_mib": 430.9375,
+  "vectors_mib": 255.33740234375,
+  "avg_out_degree": 56.91410147801526,
+  "max_out_degree": 64,
+  "min_out_degree": 10,
+  "graph_bytes": 135962060,
+  "cpu": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz",
+  "serialized_graph_bytes": 135962789,
+  "index_bytes_with_vectors": 403703461,
+  "path": "/users/pg25/virenmehta/ANN-search/dist/ANN-search/indices/vamana/quora_R64_L100_a1.2"
+}
+  pass alpha=1.0: 54.8s  avg deg 27.78  max deg 64
+  pass alpha=1.2: 102.4s  avg deg 61.03  max deg 64
+{
+  "dataset": "nq",
+  "N": 2681468,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "seed": 0,
+  "mode": "batched",
+  "build_threads": 96,
+  "build_time_s": 160.89326206303667,
+  "pass_times_s": [
+    54.842387819080614,
+    102.43160591798369
+  ],
+  "peak_build_rss_mib": 3232.9453125,
+  "rss_before_build_mib": 1484.6328125,
+  "vectors_mib": 1309.310546875,
+  "avg_out_degree": 61.03496629458192,
+  "max_out_degree": 64,
+  "min_out_degree": 4,
+  "graph_bytes": 697181680,
+  "cpu": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz",
+  "serialized_graph_bytes": 697182414,
+  "index_bytes_with_vectors": 2070094030,
+  "path": "/users/pg25/virenmehta/ANN-search/dist/ANN-search/indices/vamana/nq_R64_L100_a1.2"
+}
+{
+  "query_id": 0,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "L_search": 50,
+  "exact_top10": [
+    36538,
+    36267,
+    2176,
+    3752,
+    68299,
+    49874,
+    882,
+    87578,
+    4009,
+    2837
+  ],
+  "vamana_top10": [
+    36538,
+    36267,
+    2176,
+    3752,
+    68299,
+    49874,
+    882,
+    87578,
+    4009,
+    2837
+  ],
+  "10-recall@10": 1.0,
+  "vertices_expanded": 52,
+  "distance_evaluations": 1618
+}

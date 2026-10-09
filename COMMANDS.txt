@@ -1,0 +1,91 @@
+================================================================================
+ COMMANDS — CS6101 PA2 on the offline GPU server (type them in this order)
+================================================================================
+The server needs NO internet: the bundle carries its own Python 3.12, every package
+(as wheels) and the already-prepared datasets. GPUs are not used (CPU latency study).
+
+--------------------------------------------------------------------------------
+A. ON YOUR LAPTOP — copy the files to the server
+--------------------------------------------------------------------------------
+  cd "ANN-search/dist"
+  rsync -avP ANN-search_offline.zip ANN-search_data_compulsory.tar \
+             ANN-search_data_msmarco.tar SHA256SUMS  USER@SERVER:~/
+  # (scp works too; rsync -P can resume an interrupted transfer)
+  # ANN-search_data_msmarco.tar is only needed for the extra credit.
+
+--------------------------------------------------------------------------------
+B. ON THE SERVER
+--------------------------------------------------------------------------------
+# 1. Check the machine: needs x86_64 and glibc >= 2.28 (Ubuntu 20.04+/RHEL 8+)
+uname -m                       # must print x86_64
+ldd --version | head -1        # number must be >= 2.28
+nproc; free -g; df -h ~        # free disk: ~15 GB (compulsory), ~30 GB more (extra credit)
+
+# 2. Verify the transfer (every line must say OK; the msmarco line may be missing if not copied)
+cd ~
+sha256sum -c SHA256SUMS
+
+# 3. Unpack — the data archives are extracted INSIDE the project folder
+unzip -q ANN-search_offline.zip -d ANN-search
+cd ANN-search
+tar xf ~/ANN-search_data_compulsory.tar
+tar xf ~/ANN-search_data_msmarco.tar          # extra credit only
+
+# 4. Python environment, offline (~1 min) — must end with "OK  faiss ..."
+./setup_env.sh
+
+# 5. Persistent session (runs take hours; survives SSH disconnects)
+tmux new -s ann                # detach: Ctrl-b then d   |   reattach: tmux attach -t ann
+#    no tmux?  ->  nohup ./run_all.sh > run.log 2>&1 &     then   tail -f run.log
+
+# 6. Smoke test (~1-2 min) — must print "SMOKE TEST PASSED"
+./run_all.sh smoke
+
+# 7. Compulsory part: data check, ground truth, Part 1, scaling, Part 2, Part 3a, Part 3b
+./run_all.sh
+
+# 8. Extra credit 1: MS MARCO graph build + disk index + cold/warm cache runs
+./run_all.sh ec
+
+# 9. Extra credit 2 (ONLY if the server has a physical HDD *and* an SSD/NVMe)
+lsblk -o NAME,MODEL,ROTA,SIZE,MOUNTPOINT      # ROTA=1 -> HDD, ROTA=0 -> SSD
+#    choose a writable directory on each drive, then:
+EC_HDD_DIR=/path/on/hdd/ann_idx EC_SSD_DIR=/path/on/ssd/ann_idx ./run_all.sh ec2 report collect
+
+# 10. Results archive (also produced automatically at the end of steps 7 and 8)
+./run_all.sh collect
+ls -lh results_bundle_*.tar.gz
+
+--------------------------------------------------------------------------------
+C. BACK ON YOUR LAPTOP — fetch the results and send them to me
+--------------------------------------------------------------------------------
+  rsync -avP USER@SERVER:~/ANN-search/results_bundle_*.tar.gz .
+  # Only this file is needed (a few MB). Do NOT copy dataset/ or indices/.
+
+--------------------------------------------------------------------------------
+D. FOLLOW-UP EXPERIMENTS (after the first full run; ~30-40 min). See assignment.txt §10.
+--------------------------------------------------------------------------------
+# On the laptop: copy the small code patch (the server's Python env stays as it is)
+  rsync -avP dist/ANN-search_code_patch.zip USER@SERVER:~/
+
+# On the server (the project folder is the one containing run_all.sh, dataset/ and indices/)
+cd ~/ANN-search/dist/ANN-search
+unzip -o ~/ANN-search_code_patch.zip -d .      # overwrite code; data, indices, results stay
+tmux attach -t ann || tmux new -s ann
+./run_all.sh followup                          # FOLLOWUP_NQ_VARIANT=0 ./run_all.sh followup  -> skip the NQ R=96 build
+ls -lh results_bundle_*.tar.gz                 # copy the NEWEST bundle back (as in step C)
+
+--------------------------------------------------------------------------------
+USEFUL WHILE IT RUNS
+--------------------------------------------------------------------------------
+  tail -f logs/<stage>.log         # live log, e.g. logs/part2.log
+  ls logs/stages/                  # stages already finished
+  ./run_all.sh                     # after a crash/reboot: re-run; finished stages are skipped
+  FORCE=1 ./run_all.sh part1       # redo one stage (e.g. timings disturbed by other users)
+  BUILD_THREADS=32 ./run_all.sh    # cap build threads on a shared machine
+  htop                             # check nobody else is loading the CPUs during timing stages
+  Stages: sysinfo data gt summary part1 scaling part2 part3a part3b ec_prep ec1 ec2 followup report collect
+
+IF SOMETHING FAILS: the pipeline stops and prints the failing stage.
+  Send me logs/<that-stage>.log (or run ./run_all.sh collect and send the bundle).
+================================================================================

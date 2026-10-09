@@ -1,0 +1,5 @@
+[sift1m] FAISS exact vs supplied GT: {'top1_exact_match': 0.9914, '10-recall@10_vs_supplied': 0.9994400000000001, '100-recall@100_vs_supplied': 0.999889}
+[sift1m] exact top-100 for 10000 queries over 1000000 vectors in 13.8s
+[sift100k] exact top-100 for 10000 queries over 100000 vectors in 1.5s
+[quora] exact top-100 for 10000 queries over 522931 vectors in 7.9s
+[nq] exact top-100 for 3452 queries over 2681468 vectors in 14.8s

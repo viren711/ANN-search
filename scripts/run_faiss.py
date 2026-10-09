@@ -60,6 +60,12 @@ def main():
         build = time.perf_counter() - t0
         size = faiss.serialize_index(flat).nbytes
         r = evaluate(flat, xq, gt, xq_t, args)
+        # Exact search amortises the corpus scan over a query batch (FAISS switches to a BLAS GEMM
+        # path for large batches), so batch latency understates per-query cost. Also record the
+        # latency when queries are issued one at a time (1 repeat; reference only).
+        single = time_queries(lambda Q: flat.search(Q, 10), xq_t[:min(len(xq_t), 300)],
+                              warmup=10, repeats=1, mode="single")
+        r["latency_ms_single_query_mode"] = single["mean_latency_ms"]
         rows.append(dict(method="faiss-exact", param="-", build_time_s=build, index_bytes=size, **r))
         print(rows[-1], flush=True)
         del flat

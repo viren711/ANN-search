@@ -1,0 +1,524 @@
+================================================================================
+ CS 6101 — Programming Assignment 2
+ Approximate Nearest Neighbor Search with Vamana and DiskANN
+ The problem, our solution, and the results (server run of 8 Oct 2026)
+================================================================================
+
+All numbers in this file come from server_results/ (the bundle produced on the
+server). Plots are referenced by path under server_results/results/.
+
+CONTENTS
+  1. The problem
+  2. Data and the evaluation metric
+  3. Experimental setup (hardware, timing protocol)
+  4. Part 1 — FAISS exact search and HNSW
+  5. Part 2 — Our Vamana implementation
+  6. Part 3a — Parameter study on SIFT100K
+  7. Part 3b — Vamana vs HNSW vs exact on the full datasets
+  8. Extra credit 1 — disk-resident DiskANN-style search on MS MARCO
+  9. Extra credit 2 — HDD vs SSD (not possible on the available hardware)
+ 10. Further experiments (the "followup" stage)
+ 11. Deviations from the assignment and limitations
+ 12. Reproducing everything
+
+================================================================================
+1. THE PROBLEM
+================================================================================
+Nearest-neighbour search: given a database (corpus) of N vectors x_1..x_N in R^d and a
+query q, return the k database vectors closest to q under Euclidean (L2) distance.
+
+Exact search compares q with every database vector. That costs O(N*d) per query: about
+3.4 ms per query for SIFT1M and 9 ms for NQ (2.7M vectors), even when FAISS batches
+queries through a BLAS matrix multiply. One query at a time it is 10-12x slower still
+(41 ms and 109 ms). Approximate nearest-neighbour (ANN) indices give up a little accuracy
+for orders of magnitude less work.
+
+Graph-based ANN indices are the state of the art. Each database vector is a vertex with
+a few out-edges to "useful" neighbours. A query walks the graph greedily from an entry
+point towards q and keeps a bounded list of the best vertices seen. Only the vertices
+the walk touches are compared with q, typically a few hundred to a few thousand
+distance evaluations instead of N.
+
+The assignment asks us to:
+  * prepare three 128-dimensional datasets (SIFT1M, and BEIR Quora / NQ embeddings
+    reduced from 1024-d with PCA),
+  * measure FAISS exact search and FAISS HNSW (the standard graph baseline),
+  * implement Vamana ourselves: the graph behind DiskANN (Subramanya et al., NeurIPS
+    2019), with its GreedySearch, RobustPrune and two-pass construction,
+  * study how Vamana's parameters (R, alpha, L) trade recall against latency,
+  * compare Vamana and HNSW at equal recall,
+  * (extra credit) make the search disk-resident like DiskANN and measure it with a cold
+    and a warm page cache, and (if possible) on an HDD vs an SSD.
+
+================================================================================
+2. DATA AND THE EVALUATION METRIC
+================================================================================
+2.1 Datasets (dataset/processed/<name>/, created by scripts/prepare_sift.py and
+    scripts/prepare_beir.py)
+
+  dataset    corpus N    queries          orig d  search d  128-d f32 size  PCA variance kept
+  SIFT1M     1,000,000   10,000            128     128       488.3 MiB       - (no PCA)
+  SIFT100K     100,000   10,000            128     128        48.8 MiB       - (dev subset)
+  Quora        522,931   10,000 (test)    1024     128       255.3 MiB       0.6177
+  NQ         2,681,468    3,452 (test)    1024     128      1309.3 MiB       0.5991
+  MS MARCO   8,841,823    6,980 (dev)     1024     128      4317.3 MiB       0.6064  (extra credit)
+
+  * SIFT1M: TEXMEX sift.tar.gz (base, query, supplied exact top-100 ground truth).
+    SIFT100K = the first 100,000 SIFT1M base vectors + all 10,000 SIFT1M queries; its
+    ground truth is recomputed with FAISS.
+  * Quora / NQ / MS MARCO: Cohere embed-english-v3 single-vector embeddings from
+    CohereLabs/beir-embed-english-v3. We use the test queries for Quora and NQ and the
+    dev queries for MS MARCO (MS MARCO's BEIR evaluation split).
+    Query counts match the distinct query ids in the qrels.
+
+2.2 PCA 1024 -> 128 (scripts/prepare_beir.py), done separately for each dataset:
+  1. Uniform random sample of 200,000 corpus rows without replacement, seed 42.
+     Queries are never used for fitting.
+  2. sklearn.decomposition.PCA(n_components=128, svd_solver="covariance_eigh") fitted on
+     that sample. This is exact PCA through the 1024x1024 covariance matrix. Fit time
+     is 1-12 s.
+  3. The same mean and components are applied to every corpus vector, streamed by
+     10,000-row parquet row groups (NQ at 1024-d would be ~11 GB), and to the queries.
+  4. Cast to float32 and L2-normalise each projected vector.
+  128 components keep only ~60% of the variance of the Cohere embeddings. That is
+  acceptable here, because the ground truth is recomputed in the 128-d space (2.3), so
+  recall measures ANN fidelity, not retrieval relevance. For unit vectors,
+  ||a-b||^2 = 2 - 2 a.b, so L2 search is equivalent to cosine / inner-product search.
+
+2.3 Ground truth (scripts/compute_gt.py): FAISS IndexFlatL2 over the 128-d vectors,
+  top-100, computed once and saved as gt_ids.npy. BEIR qrels are not used.
+  * SIFT1M uses the supplied ground truth. Our FAISS exact result agrees on
+    10-recall@10 = 0.99944, 100-recall@100 = 0.99989 and the same top-1 id for
+    99.14% of queries. We checked all 86 top-1 mismatches: every one is an exact
+    distance tie (SIFT vectors are integers, so equal distances are common).
+  * GT time on the server: SIFT1M 13.8 s, Quora 7.9 s, NQ 14.8 s, MS MARCO 99 s.
+
+2.4 Metric (ann/metrics.py): k-recall@k = |A_k(q) ∩ G_k(q)| / k, averaged over queries.
+    We report 1-recall@1 and 10-recall@10.
+  Note on SIFT1M: because of the ties above, even FAISS exact search scores
+  1-recall@1 = 0.9914 and 10-recall@10 = 0.9994 against the supplied GT. Those are the
+  practical ceilings for SIFT1M. (Vamana at large L scores 0.9923 1-recall@1, slightly
+  above exact FAISS. That is tie-breaking luck, not accuracy beyond exact search.)
+
+================================================================================
+3. EXPERIMENTAL SETUP
+================================================================================
+  Server   : gpu1, 2x Intel Xeon Gold 5220R @ 2.2 GHz (2 sockets, 48 cores / 96
+             threads, 2 NUMA nodes, 71.5 MiB L3), 1.5 TiB RAM, Linux 5.10 (Debian),
+             glibc 2.31. The 4 GPUs are NOT used (see below).
+  Storage  : /users = Linux software RAID md127 over 4x Micron 5400 3.84 TB SATA SSD
+             (all experiments and indices live here). Root = RAID1 of 2x Micron 5300 SATA SSD.
+  Software : Python 3.12.15 (bundled python-build-standalone), numpy 2.5.3,
+             numba 0.68.0, faiss-cpu 1.15.1, scikit-learn 1.9.1, pyarrow 25.0.1.
+             The server has no internet: everything was shipped offline (README.md).
+  Threads  : index construction uses 96 threads (FAISS OpenMP / Numba). Every query-time
+             measurement uses exactly 1 thread for every method.
+  Query mode: "batch". All timing queries go in one call and latency = wall time /
+             #queries. With 1 thread, HNSW and Vamana still process queries one after
+             another, so batch mode only removes per-call Python overhead.
+  Timing   : fixed random subset of 1,000 queries (seed 0), the same for every method
+             (allowed: more than 1,000 test queries). 200-query warm-up, median of 5
+             repeats, index loading excluded. Recall is always over the FULL query set.
+             timing_rel_spread = (max-min)/median of the repeats is recorded per row;
+             almost all rows are below 2%.
+  Why no GPUs: the assignment compares CPU query latency of HNSW and Vamana under
+             identical thread settings, and Vamana must be our own code. The GPU-friendly
+             steps (PCA, exact GT) take seconds on CPU.
+
+================================================================================
+4. PART 1 — FAISS EXACT SEARCH AND HNSW   (scripts/run_faiss.py)
+================================================================================
+Exact: faiss.IndexFlatL2. HNSW: faiss.IndexHNSWFlat with M=32 (64 links on layer 0)
+and efConstruction=200, built with 96 threads. Seven query-time points:
+efSearch in {16, 32, 64, 128, 256, 512, 1024}. Index size = serialized FAISS index.
+
+SIFT1M (HNSW build 22.5 s, index 784.1 MB; exact index 512.0 MB)
+  method           1-R@1   10-R@10  latency ms   QPS
+  exact            0.9914  0.9994    3.368        297   (one query at a time: 41.0 ms)
+  HNSW efS=16      0.9050  0.8575    0.105      9,557
+  HNSW efS=32      0.9587  0.9402    0.175      5,708
+  HNSW efS=64      0.9823  0.9807    0.306      3,268
+  HNSW efS=128     0.9898  0.9951    0.547      1,827
+  HNSW efS=256     0.9912  0.9988    0.983      1,017
+  HNSW efS=512     0.9914  0.9994    1.479        676
+  HNSW efS=1024    0.9914  0.9994    2.724        367
+
+Quora (HNSW build 11.4 s, index 410.0 MB; exact 267.7 MB)
+  exact            1.0000  1.0000    1.757        569   (one at a time: 21.2 ms)
+  HNSW efS=16      0.9949  0.9878    0.068     14,780
+  HNSW efS=32      0.9980  0.9963    0.114      8,753
+  HNSW efS=64      0.9989  0.9986    0.201      4,967
+  HNSW efS=128     0.9994  0.9993    0.363      2,757
+  HNSW efS=256     0.9995  0.9996    0.663      1,508
+  HNSW efS=512     0.9996  0.9996    1.214        824
+  HNSW efS=1024    0.9997  0.9998    2.250        444
+
+NQ (HNSW build 75.5 s, index 2,102.7 MB; exact 1,372.9 MB)
+  exact            1.0000  1.0000    9.008        111   (one at a time: 109.3 ms)
+  HNSW efS=16      0.9273  0.8875    0.128      7,803
+  HNSW efS=32      0.9615  0.9470    0.207      4,836
+  HNSW efS=64      0.9803  0.9769    0.356      2,806
+  HNSW efS=128     0.9913  0.9913    0.670      1,493
+  HNSW efS=256     0.9962  0.9964    1.021        979
+  HNSW efS=512     0.9977  0.9981    1.677        596
+  HNSW efS=1024    0.9994  0.9994    3.174        315
+
+(SIFT100K: exact 0.339 ms; HNSW build 0.72 s, e.g. efS=64 -> 0.9934 at 0.111 ms.)
+Plots: results/<ds>/hnsw_recall_latency.png.
+
+Observations
+  * Quora is "easy": 0.988 10-recall@10 at the smallest efSearch. NQ and SIFT1M need
+    efSearch ≈ 128 for 0.99.
+  * Exact search in batch mode benefits from a BLAS GEMM over the query batch (FAISS
+    switches to it for large batches). That makes it 10-12x faster per query than
+    issuing queries one at a time, so both numbers are reported. The graph indices are
+    unaffected by batching with 1 thread. Even batched, exact search is 6-15x slower
+    than HNSW at 0.99 recall (SIFT1M 6.2x, Quora 15x, NQ 13x), and the gap grows with N.
+
+================================================================================
+5. PART 2 — OUR VAMANA IMPLEMENTATION   (ann/vamana.py)
+================================================================================
+5.1 What is implemented (all our own code, no Vamana/DiskANN library)
+
+GreedySearch(G, s, q, k, L)  [_greedy_search]
+  * The candidate set C is a sorted array of at most L (id, distance) pairs plus an
+    "expanded" flag. A pointer tracks the closest unexpanded candidate, and every entry
+    before it is already expanded. Each step expands that candidate: it is added to the
+    visited set V, and each out-neighbour not yet seen is evaluated and inserted. If C
+    exceeds L, the farthest entry is dropped. The search stops when every candidate in
+    C has been expanded, and the k best of C are returned.
+  * A vertex is evaluated at most once per search ("seen" tag). A vertex evicted from C
+    is never re-inserted. That is equivalent to the pseudocode: it was evicted because
+    L better points were known, and the list only improves.
+  * It returns V (visited vertices and their distances, needed by construction) and
+    counts vertices expanded and new query-to-database distance evaluations
+    (start vertex included).
+
+RobustPrune(G, p, V, alpha, R)  [_robust_prune]
+  * Pool = (V ∪ N_out(p)) \ {p}, de-duplicated and sorted by distance to p. Repeatedly
+    take the closest remaining p*, add it to N_out(p) and stop at R. Then drop every
+    remaining p' with alpha·d(p*,p') <= d(p,p').
+  * Distances are squared L2 internally, so the rule is applied as
+    alpha^2·d²(p*,p') <= d²(p,p'). That is exactly the rule on true Euclidean
+    distances.
+
+BuildVamana(P, R, L_build, alpha)  [VamanaIndex.build]
+  * Random R-regular directed initial graph: no self loops, no duplicate edges, seed 0.
+  * Entry point s = the database point nearest the dataset mean (medoid approximation).
+  * Two passes over a random permutation (seed 1): alpha = 1.0, then alpha = 1.2.
+    For every p: GreedySearch(s, x_p, 1, L_build) -> V; RobustPrune(p, V); then for every
+    new out-neighbour j add the back edge p -> j, and RobustPrune(j) if j would exceed R.
+  * Two build modes:
+      serial  : the pseudocode literally (one point at a time).
+      batched : (default) parallel batch insertion, as DiskANN and ParlayANN do it.
+                Phase 1: all batch points search and prune concurrently on the read-only
+                graph. Phase 2: results are committed. Phase 3: back edges are grouped by
+                target vertex, and each target is updated by exactly one thread. This is
+                race-free and deterministic for a fixed thread count. Batch sizes double
+                1, 2, 4, ... up to 2% of N.
+    Validation (20K SIFT points, R=32, L=50): serial 10-recall@10 = 0.9948 vs batched
+    0.9953 at L_search=50, so parallel insertion costs no quality.
+  * Query time: GreedySearch from s with a separate L_search (>= k).
+
+5.2 Representation and optimisations
+  * Language: Python + Numba (@njit with fastmath, parallel=True/prange, cache=True).
+    The kernels compile to native code, and the 128-d distance loop is SIMD-vectorised.
+  * Vectors: one contiguous float32 [N,128] array. Graph: fixed-width int32 adjacency
+    [N,R] (-1 padding) + int32 out-degree array. Serialized as graph.npy + degrees.npy.
+  * Visited sets: per-thread int32 tag arrays of length N with an epoch counter, so a
+    search never clears or allocates an O(N) structure; buffers are reused.
+  * Candidate list: sorted array with insertion by shifting (L <= 500, so this is
+    cache-friendly and faster than a heap here).
+  * Parallelism: prange over batch points, back-edge targets and queries
+    (query parallelism is not used in timing; timing is 1 thread).
+  * Back-edge updates grouped by target: no locks or atomics are needed.
+
+5.3 Build statistics (96 threads, R=64, L_build=100, alpha=1.2; graph-only size)
+  dataset   N          build    pass α=1 / α=1.2   avg deg  max  min  graph size  graph+vectors  peak RSS
+  SIFT100K    100,000    3.35 s    0.67 /   2.52 s   53.43     64    7    26.0 MB      77.2 MB       415 MiB
+  SIFT1M    1,000,000   52.75 s   14.21 /  37.14 s   57.85     64    7   260.0 MB     772.0 MB     1,325 MiB
+  Quora       522,931   23.01 s    7.34 /  14.91 s   56.91     64   10   136.0 MB     403.7 MB       779 MiB
+  NQ        2,681,468  160.89 s   54.84 / 102.43 s   61.03     64    4   697.2 MB   2,070.1 MB     3,233 MiB
+  MS MARCO  8,841,823  459.07 s  140.22 / 306.23 s   55.21     64    4  2,298.9 MB   6,825.9 MB    10,137 MiB
+  * Max out-degree <= R is asserted for every graph and holds.
+  * Peak RSS is for the whole build process: vectors + graph + per-thread tag arrays
+    (96 x 4N bytes; 3.4 GB of the MS MARCO peak).
+  * The alpha=1 pass yields a sparse graph (avg degree ~16-22). The alpha=1.2 pass adds
+    the long-range edges and costs ~2x as much as the first pass.
+
+5.4 Scaling test (scripts/scaling_test.py, build on the first n points)
+  server, 96 thr   100K      250K      500K      fitted N^b    extrapolated full    actual full
+  SIFT1M           3.03 s   12.35 s   26.39 s    b = 1.35      72 s                 52.75 s
+  NQ               3.11 s   11.12 s   24.96 s    b = 1.30      229 s                160.89 s
+  (laptop, 12 thr: SIFT1M 16.1 / 56.9 / 133.2 s, b = 1.32, extrapolated 340 s)
+  The fit over-predicts the full builds: parallel efficiency improves with larger
+  batches (batch cap = 2% of N). Build time grows slightly super-linearly, as expected
+  (each insertion costs ~log N hops, and the graph gets harder to navigate).
+
+5.5 Single-query sanity check (SIFT100K, query 0, L_search = 50)
+  exact top-10  = [36538, 36267, 2176, 3752, 68299, 49874, 882, 87578, 4009, 2837]
+  Vamana top-10 = [36538, 36267, 2176, 3752, 68299, 49874, 882, 87578, 4009, 2837]
+  10-recall@10 = 1.0, vertices expanded = 52, distance evaluations = 1,618.
+
+================================================================================
+6. PART 3a — PARAMETER STUDY ON SIFT100K   (scripts/param_study.py)
+================================================================================
+Five graphs: reference (R=64, α=1.2), R ∈ {32, 96}, α ∈ {1.0, 1.4}, all with L_build=100.
+Each is searched at L_search ∈ {10, 20, 30, 50, 75, 100, 150, 200}.
+Full table: results/sift100k/param_study.csv.
+Plots: param_recall_vs_Lsearch.png, param_recall_vs_latency.png, param_recall_vs_expanded.png.
+
+Selected rows (10-R@10 / latency ms / distance evals / vertices expanded):
+  graph (avg deg, build)       L=10                      L=30                       L=100
+  R=64 α=1.2 (53.4, 3.35 s)   0.9382/0.043/613/14.0     0.9926/0.097/1131/33.3     0.9997/0.238/2458/102.8
+  R=32 α=1.2 (31.5, 2.01 s)   0.8292/0.022/364/15.4     0.9483/0.051/658/34.5      0.9912/0.136/1447/103.5
+  R=96 α=1.2 (60.5, 3.25 s)   0.9532/0.050/757/13.6     0.9960/0.113/1386/33.0     0.9998/0.288/2974/102.6
+  R=64 α=1.0 (15.8, 1.48 s)   0.7860/0.020/306/15.9     0.9473/0.047/551/34.7      0.9958/0.130/1287/103.5
+  R=64 α=1.4 (62.6, 4.53 s)   0.9126/0.037/611/14.1     0.9807/0.080/1085/33.4     0.9977/0.208/2256/102.8
+
+Cheapest setting reaching 10-recall@10 >= 0.99:
+  R=64 α=1.2: L=30  -> 0.9926, 33 expansions, 1,131 dists, 0.097 ms
+  R=96 α=1.2: L=30  -> 0.9960, 33 expansions, 1,386 dists, 0.113 ms (L=20 gives 0.9887)
+  R=32 α=1.2: L=100 -> 0.9912, 104 expansions, 1,447 dists, 0.136 ms
+  R=64 α=1.0: L=75  -> 0.9913, 79 expansions, 1,041 dists, 0.100 ms
+  R=64 α=1.4: L=50  -> 0.9918, 53 expansions, 1,472 dists, 0.121 ms
+
+Discussion
+  * L_search: GreedySearch only stops when all L candidates are expanded, so vertices
+    expanded ≈ L_search (+3 to +8) for every graph. Distance evaluations grow sub-linearly in L,
+    because neighbourhoods of consecutive expansions overlap. Latency is almost
+    proportional to distance evaluations (~90-100 ns each on SIFT100K). Recall rises
+    steeply up to L ≈ 30-50 and then saturates.
+  * R (max out-degree): at a fixed L, a larger R gives higher recall (L=20:
+    R=32 0.916, R=64 0.982, R=96 0.989) but costs more distance evaluations per
+    expansion. Why can a graph with more out-edges need FEWER expansions for a target
+    recall? Each expansion inspects more neighbours, so the candidate list fills with
+    good points sooner. The richer neighbourhoods also give more "shortcut" edges,
+    so fewer hops are needed to cover the true neighbours. To reach 0.99, R=32 needs
+    ~104 expansions but R=64 and R=96 need only ~33, roughly 3x fewer. In RAM, the
+    extra distances per expansion partly cancel this. R=64 has the best latency, and
+    R=96 only helps beyond 0.995. On disk every expansion is a random read, so fewer
+    expansions is exactly what DiskANN wants. Note that R=96 only reaches average
+    degree 60 (vs 53 for R=64): RobustPrune with α=1.2 rarely wants more than ~60 edges
+    on SIFT100K.
+  * α (pruning slack): α=1.0 prunes aggressively. Any candidate closer to an already
+    selected neighbour than to p is removed, so the graph is very sparse (avg degree 15.8)
+    and has almost no long-range edges. Each expansion is cheap, but more expansions are
+    needed (L=75 for 0.99), and recall at small L is poor (0.786 at L=10). α=1.2 keeps
+    extra long-range edges: degree 53, far fewer expansions, and the best overall.
+    α=1.4 prunes too little. The R slots fill with the closest candidates (avg degree
+    62.6, saturated), so the neighbourhood loses the directional diversity that α
+    exists to keep, and recall at fixed L drops below α=1.2 (L=30: 0.981 vs 0.993).
+    It also builds slowest (4.5 s), since there is more pruning work. α=1.2, the DiskANN
+    paper's choice, is the sweet spot.
+  * In RAM on SIFT100K the curves are close (all within ~20% at 0.99): the cost model
+    rewards fewer distance evaluations, not fewer hops. The R/α choice matters much
+    more for the disk-resident index (section 8), where hops are reads.
+
+================================================================================
+7. PART 3b — FULL-DATASET COMPARISON   (scripts/search_vamana.py, scripts/compare.py)
+================================================================================
+One Vamana graph per dataset (R=64, L_build=100, α=1.2). L_search ∈ {10, 20, 30, 50, 75,
+100, 150, 200, 300, 500}. HNSW and exact as in Part 1, with the same 1-thread batch
+protocol. Plots: results/<ds>/compare_recall_latency.png.
+All Vamana points: results/<ds>/vamana_R64_L100_a1.2.csv (+ per-query stats .npz).
+
+Vamana operating points (10-R@10 / latency ms / dist evals / expansions)
+  L     SIFT1M                      Quora                       NQ
+  10    0.8770/0.100/780/15.8       0.9898/0.075/630/15.6       0.8613/0.116/913/19.1
+  20    0.9463/0.159/1121/25.3      0.9968/0.116/873/25.4       0.9213/0.174/1239/29.1
+  50    0.9866/0.313/2027/54.5      0.9987/0.229/1526/55.0      0.9685/0.323/2094/58.7
+  100   0.9959/0.540/3320/104.1     0.9991/0.397/2496/104.8     0.9847/0.550/3349/108.2
+  200   0.9984/0.940/5493/203.8     0.9995/0.714/4227/204.5     0.9924/0.982/5602/207.6
+  500   0.9991/2.000/10629/503.4    0.9998/1.610/8718/504.1     0.9971/2.225/11480/507.0
+
+Comparable-recall table (fastest setting of each method reaching the target)
+  dataset  target   HNSW (efS: 10-R@10, ms)    Vamana (L: 10-R@10, ms)    faster
+  SIFT1M   0.95     64: 0.9807, 0.306          30: 0.9697, 0.212          Vamana 1.4x
+  SIFT1M   0.98     64: 0.9807, 0.306          50: 0.9866, 0.313          tie
+  SIFT1M   0.99     128: 0.9951, 0.547         75: 0.9931, 0.430          Vamana 1.3x
+  SIFT1M   0.995    128: 0.9951, 0.547         100: 0.9959, 0.540         tie
+  SIFT1M   0.999    512: 0.9994, 1.479         500: 0.9991, 2.000         HNSW (ceiling 0.9994)
+  Quora    0.99     32: 0.9963, 0.114          20: 0.9968, 0.116          tie
+  Quora    0.999    128: 0.9993, 0.363         100: 0.9991, 0.397         HNSW 1.1x
+  NQ       0.95     64: 0.9769, 0.356          50: 0.9685, 0.323          ~tie
+  NQ       0.98     128: 0.9913, 0.670         100: 0.9847, 0.549         Vamana 1.2x
+  NQ       0.99     128: 0.9913, 0.670         200: 0.9924, 0.982         HNSW 1.5x
+  NQ       0.995    256: 0.9964, 1.021         500: 0.9971, 2.225         HNSW 2.2x
+  exact (reference, batch / one-at-a-time): SIFT1M 3.37/41.0 ms, Quora 1.76/21.2 ms,
+  NQ 9.01/109.3 ms, all at recall 1 (SIFT1M 0.9994, the tie ceiling).
+
+Build time and index size (96 threads)
+  dataset  Vamana build  HNSW build  Vamana graph+vectors  HNSW index
+  SIFT1M   52.8 s        22.5 s      772.0 MB              784.1 MB
+  Quora    23.0 s        11.4 s      403.7 MB              410.0 MB
+  NQ       160.9 s       75.5 s      2,070.1 MB            2,102.7 MB
+
+Discussion
+  * Recall vs latency: our Vamana is on par with FAISS HNSW (a highly optimised C++
+    library) on SIFT1M and Quora up to ~0.995 10-recall@10, and slightly faster in the
+    0.95-0.99 band on SIFT1M. HNSW wins at the extreme high-recall end. On NQ, Vamana
+    is equal or faster up to ~0.985, but needs L=200-500 for >= 0.99, where HNSW is
+    1.5-2.2x faster.
+  * Why NQ's high-recall tail is harder for Vamana (per-query stats, *_perquery.npz):
+    at L=100, 8.4% of NQ queries miss at least one true neighbour (SIFT1M 3.6%, Quora
+    0.65%), and at L=500 still 2.0% do. A few "hard" queries need very long walks
+    from Vamana's single fixed entry point. HNSW's upper layers give every query its
+    own, closer entry point into layer 0. Embeddings reduced to 128-d keep only 60% of
+    the variance, so their neighbourhoods are less clustered than SIFT's; the higher
+    average degree on NQ (61.0, near the R=64 cap) points the same way. The followup
+    stage tests whether a denser NQ graph (R=96, L_build=200) closes this gap.
+  * Latency per distance evaluation is higher on the larger datasets: ~95 ns on
+    SIFT100K, ~160 ns on SIFT1M and NQ. Vectors no longer fit in cache, so each new
+    neighbour is a memory miss. Graph search is memory-latency bound, not compute bound.
+  * Build time: Vamana builds 2.0-2.4x slower than HNSW with the same 96 threads. It
+    makes two full passes (α=1, then α=1.2) with L_build=100, and our batch-parallel
+    Numba build has some synchronisation between batches. Both build these
+    million-scale indices in seconds to minutes.
+  * Index size: practically identical. Vamana stores R=64 int32 ids per vertex in a
+    fixed-width array (256 B/vertex) plus vectors; HNSW stores 2M=64 links on layer 0
+    plus the upper layers. Vamana's fixed-width layout is exactly what makes the disk
+    layout in section 8 trivial (one record per vertex at a computable offset).
+  * Exact search is 6-15x slower than either graph index at 0.99 recall even with batch
+    GEMM, and 75-190x slower when queries arrive one at a time. The gap grows linearly
+    with N.
+
+================================================================================
+8. EXTRA CREDIT 1 — DISK-RESIDENT DISKANN-STYLE SEARCH ON MS MARCO
+   (ann/diskann.py, ann/pagecache.py, scripts/ec_build_disk_index.py,
+    scripts/ec_disk_search.py, scripts/ec_cold_warm.py)
+================================================================================
+8.1 Design
+  * Graph: our own Vamana build on all 8,841,823 MS MARCO passages (PCA-128, 6,980 dev
+    queries), R=64, L_build=100, α=1.2. Build time 459 s, avg degree 55.2, max 64.
+  * Disk record per vertex: [128 x float32 full-precision vector | int32 degree |
+    64 x int32 neighbour ids] = 772 bytes. Records are packed 5 per 4 KiB sector, and a
+    record never crosses a sector boundary (DiskANN-style).
+    Lookup by id: offset(v) = (v div 5)·4096 + (v mod 5)·772. index.bin = 7.24 GB.
+  * Permanently in RAM: FAISS ProductQuantizer codes, M=32 sub-quantizers x 8 bits =
+    32 B/vector = 283 MB (trained on 250K random vectors, seed 0, 4.8 s); PQ centroids
+    (131 KB); the entry point; an int32 visited-tag array (35 MB); small per-query buffers.
+    The full graph and full vectors are never loaded. They are read on demand with
+    pread() on a file opened with POSIX_FADV_RANDOM (no readahead).
+  * Beam search (W = 4): the candidate list (size L) is ordered by PQ (asymmetric)
+    distance. Each round takes the W closest unexpanded candidates and fetches their
+    sectors together. For each fetched vertex it computes the EXACT distance from the
+    on-disk vector, and inserts the unseen neighbours using PQ distances.
+    Final answer = expanded vertices re-ranked by exact distance (full-precision re-rank).
+  * Reading W sectors together ("io = fadvise"): posix_fadvise(WILLNEED) on all W sector
+    ranges first, so the kernel submits them asynchronously and they are in flight
+    together, then pread() each. On a laptop NVMe test (SIFT100K, L=50) this beat a
+    thread pool (cold 1.48 vs 2.44 ms) and plain sequential reads (cold 2.02 ms).
+  * RAM limit: the search process sets setrlimit(RLIMIT_AS) = 8 GiB before loading anything.
+  * Cold-cache protocol, per operating point, using util-linux fincore on the server:
+    (1) index files closed; (2) fincore; (3) fsync + posix_fadvise(DONTNEED) on each
+    index file; (4) fincore again; (5) a new process runs the timed workload.
+    Warm: run the workload once (untimed) to exercise the index, fincore, then a new
+    process runs the timed workload. /proc/self/io read_bytes records what actually came
+    from storage.
+    Before eviction the index was 100% resident (7.53 GB, just built). After eviction,
+    and before every cold run, fincore reported 0 bytes resident.
+
+8.2 Results (1,000 dev queries, one at a time, 1 search thread, W=4; device /users =
+    md127 RAID over 4x Micron 5400 SATA SSD)
+  L    cache  1-R@1  10-R@10  mean ms  p50 ms  p95 ms   QPS   reads/q  KB/q  rounds/q  exp/q  storage KB/q  peak RSS  resident before
+  50   cold   0.955  0.9334    4.50    4.41    5.69    222     72.0   295    19.6     73.0     219        465 MiB     0%
+  50   warm   0.955  0.9334    1.14    1.10    1.35    880     72.0   295    19.6     73.0       0        461 MiB     3.0%
+  100  cold   0.972  0.9696    7.35    7.23    8.80    136    120.8   495    31.7    122.0     372        460 MiB     0%
+  100  warm   0.972  0.9696    1.68    1.64    1.93    595    120.8   495    31.7    122.0       0        460 MiB     5.1%
+  200  cold   0.978  0.9843   13.31   13.18   15.00     75    219.2   898    56.4    220.7     659        461 MiB     0%
+  200  warm   0.978  0.9843    2.83    2.78    3.20    353    219.2   898    56.4    220.7       0        460 MiB     9.1%
+  On-disk index: 7.53 GB total (index.bin 7.24 GB + PQ codes 283 MB + centroids).
+  Peak RSS 460-465 MiB, far below the 8 GiB limit.
+
+8.3 Discussion
+  * Cold vs warm: cold is 4.0-4.7x slower. The extra cold time per beam round is
+    (13.31-2.83)/56.4 ≈ 186 µs (≈171-186 µs at all three L). That is one SATA-SSD
+    random-read latency per round, so the W=4 reads of a round really overlap: we pay
+    about one device latency per round, not per read. Cold latency ≈ rounds x device
+    latency, which is why rounds/query (not reads/query) is the number to minimise.
+  * Cold runs read less from storage than they request (219 of 295 KB/query at L=50).
+    Queries share sectors near the entry point, which warm up during the run itself.
+    Each run starts at 0% resident, but the page cache fills as queries execute.
+  * Warm runs: storage reads drop to 0 B. The 1,000-query working set is only 3-9% of
+    index.bin, so even a small page cache serves it. The remaining 1.1-2.8 ms is CPU,
+    ~50-58 µs per beam round in total: Python-level round orchestration (page-cache
+    copies, numpy bookkeeping), PQ distances and exact distances per expanded vertex. That is why warm disk search is ~4-5x
+    slower than the in-memory Vamana numbers. This is our implementation's overhead,
+    not a property of DiskANN.
+  * Recall: 0.933 / 0.970 / 0.984 at L = 50 / 100 / 200. Navigation uses PQ distances
+    (32 bytes for 128 floats), which misorder candidates, so a larger L is needed than
+    with full-precision search. The followup stage measures the in-memory Vamana recall
+    on the same graph to separate the PQ effect from graph quality, and extends L to 300
+    and 500 to reach >= 0.99.
+  * Bottleneck: cold, it is storage latency per round. Warm, it is CPU (orchestration +
+    PQ arithmetic). Storage bandwidth is never the limit: 0.9 MB/query at 75 QPS is
+    ~67 MB/s.
+
+================================================================================
+9. EXTRA CREDIT 2 — HDD vs SSD
+================================================================================
+Not possible with the hardware available, and documented as such (the assignment
+says not to buy hardware). The server has only SSDs: 2x Micron 5300 + 5x Micron 5400,
+all SATA SSD, ROTA=0 in lsblk. The laptop has a single NVMe SSD (Crucial CT480E100SSD8).
+Two partitions of one drive, or two SSD arrays, are not an HDD/SSD comparison.
+The pipeline supports it: set EC_HDD_DIR and EC_SSD_DIR, then run "./run_all.sh ec2".
+That copies the identical index to both drives and runs the same cold/warm protocol.
+Expected behaviour, for the discussion: one random 4 KiB read costs ~5-10 ms on an HDD
+vs ~0.1-0.2 ms on a SATA SSD. A cold HDD run at L=100 (~32 rounds) would take roughly
+32 x 8 ms ≈ 250 ms/query. W=4 overlapped reads help much less on an HDD, because one
+head must serve them in sequence (only NCQ reordering helps). Warm, both devices
+should be identical, since everything comes from the page cache.
+
+================================================================================
+10. FURTHER EXPERIMENTS — RECOMMENDED (./run_all.sh followup, ~30-40 min on the server)
+================================================================================
+The compulsory deliverables and EC1 are complete. These follow-ups strengthen the
+discussion; none needs a full rebuild except the optional NQ diagnostic:
+  (1) HNSW work counters (scripts/hnsw_counts.py): FAISS hnsw_stats ndis/nhops per
+      query for every efSearch. This gives "distance evaluations at equal recall" for
+      HNSW vs Vamana, a hardware-independent comparison (adds
+      compare_recall_vs_dist_evals.png).
+  (2) MS MARCO in-memory Vamana on the same graph (L = 50..500): separates PQ
+      navigation loss from graph quality in section 8.
+  (3) Disk search at L = 300, 500 (cold + warm): reach >= 0.99 recall on disk.
+  (4) Beam-width ablation at L = 100: W ∈ {1, 2, 8} (W = 4 already done).
+      This shows rounds/query and cold latency falling as W grows, the core DiskANN
+      argument. A laptop test on SIFT100K already shows it: W=1/2/8 -> 103/53/16
+      rounds, cold 7.8/5.5/2.7 ms.
+  (5) Optional NQ diagnostic: one denser graph (R=96, L_build=200), searched with the
+      same L_search sweep, to test whether NQ's high-recall gap to HNSW comes from graph
+      quality. It is one diagnostic build, not a sweep. Skip it with FOLLOWUP_NQ_VARIANT=0.
+
+================================================================================
+11. DEVIATIONS FROM THE ASSIGNMENT AND LIMITATIONS
+================================================================================
+  * Timing on a fixed 1,000-query random subset (seed 0, the same for all methods).
+    Recall always uses the full query set (10,000 / 10,000 / 3,452 / 6,980).
+  * Query mode "batch" with 1 thread, for all methods. Exact search is also reported
+    one query at a time (it is the only method that batching speeds up).
+  * The Vamana build inserts points in parallel batches rather than strictly one at a
+    time, as in the real DiskANN code. Validated to give the same quality as the serial
+    pseudocode (section 5.1).
+  * R=64, L_build=100, α=1.2 (the reference configuration) is used for every full dataset.
+  * MS MARCO queries are the dev split (6,980), because BEIR evaluates MS MARCO on dev.
+    Disk-search timing uses 1,000 of them.
+  * The EC disk search is single-threaded Python orchestration around Numba kernels. Its
+    warm-cache latency includes interpreter overhead that a C++ DiskANN would not have.
+  * Measurements on a shared 2-socket NUMA server. Spreads are recorded per row and are
+    small (median < 1%). Processes were not pinned to a NUMA node.
+  * EC2 not possible (no HDD available).
+
+================================================================================
+12. REPRODUCING
+================================================================================
+  ./setup_env.sh                       # offline install (bundled Python + wheels)
+  ./run_all.sh smoke                   # 1-min end-to-end check
+  ./run_all.sh                         # compulsory Parts 1-3
+  ./run_all.sh ec                      # extra credit
+  ./run_all.sh followup                # section 10
+  python scripts/replot.py --root server_results/results   # redraw all figures from CSVs
+  Every parameter is in config.env. Every stage logs to logs/<stage>.log.
+  results/REPORT_TABLES.md collects all tables. Exact commands: COMMANDS.txt.
+  LLM usage: this pipeline and these notes were developed with Claude (Anthropic) in
+  Claude Code. The assignment requires full documentation and chat links in the report.

@@ -1,0 +1,21 @@
+{
+  "hostname": "gpu1",
+  "cpu_model": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz",
+  "logical_cpus": 96,
+  "physical_cores": 48,
+  "ram_gib": 1510.5,
+  "python": "3.12.15",
+  "os": "Linux-5.10.0-32-amd64-x86_64-with-glibc2.31",
+  "faiss": "1.15.1",
+  "numba": "0.68.0",
+  "numba_threads": 96,
+  "numpy": "2.5.3",
+  "sklearn": "1.9.1",
+  "fincore_cli": true,
+  "env": {
+    "BUILD_THREADS": "96",
+    "SEARCH_THREADS": "1",
+    "NUMBA_NUM_THREADS": "96",
+    "OMP_NUM_THREADS": null
+  }
+}

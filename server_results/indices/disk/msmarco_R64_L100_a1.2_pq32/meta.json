@@ -1,0 +1,23 @@
+{
+  "dataset": "msmarco",
+  "N": 8841823,
+  "D": 128,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "start": 4973502,
+  "rec_size": 772,
+  "nodes_per_sector": 5,
+  "sector_bytes": 4096,
+  "record_layout": "[128 x float32 vector | int32 degree | 64 x int32 neighbours], 772 B, 5 records per 4 KiB sector, no record crosses a sector",
+  "pq_m": 32,
+  "pq_nbits": 8,
+  "pq_train_sample": 250000,
+  "pq_seed": 0,
+  "pq_time_s": 4.811972978990525,
+  "write_time_s": 22.49096482200548,
+  "index_bin_bytes": 7243223040,
+  "pq_codes_bytes": 282938464,
+  "pq_centroids_bytes": 131200,
+  "total_on_disk_bytes": 7526292704
+}

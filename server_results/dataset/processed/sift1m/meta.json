@@ -1,0 +1,16 @@
+{
+  "name": "sift1m",
+  "corpus_size": 1000000,
+  "num_queries": 10000,
+  "original_dim": 128,
+  "search_dim": 128,
+  "metric": "L2",
+  "source": "ftp://ftp.irisa.fr/local/texmex/corpus/sift.tar.gz",
+  "gt_k": 100,
+  "gt_time_s": 13.8125195549801,
+  "faiss_vs_supplied_gt": {
+    "top1_exact_match": 0.9914,
+    "10-recall@10_vs_supplied": 0.9994400000000001,
+    "100-recall@100_vs_supplied": 0.999889
+  }
+}

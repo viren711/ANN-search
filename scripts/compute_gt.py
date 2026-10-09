@@ -4,7 +4,7 @@
               ground truth is used as gt_ids.npy (as required).
   * sift100k, quora, nq: FAISS exact search over the 128-d vectors defines gt_ids.npy.
 
-Usage: python scripts/compute_gt.py --dataset sift1m sift100k quora nq
+Usage: python scripts/compute_gt.py --dataset sift1m sift100k quora nq [msmarco]
 """
 import argparse
 import sys
@@ -26,10 +26,11 @@ def main():
     ap.add_argument("--dataset", nargs="+", default=["sift1m", "sift100k", "quora", "nq"])
     args = ap.parse_args()
     for name in args.dataset:
-        xb, xq = load_base(name), load_query(name)
+        xb, xq = load_base(name, mmap=True), load_query(name)
         t0 = time.perf_counter()
         index = faiss.IndexFlatL2(xb.shape[1])
-        index.add(xb)
+        for s in range(0, xb.shape[0], 1 << 20):          # chunked add: avoids 2 copies in RAM
+            index.add(np.ascontiguousarray(xb[s:s + (1 << 20)]))
         D, I = index.search(xq, K)
         dt = time.perf_counter() - t0
         I = I.astype(np.int32)

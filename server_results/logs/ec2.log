@@ -1,0 +1,1 @@
+EC2 skipped: set EC_HDD_DIR and EC_SSD_DIR (two different physical drives) in config.env

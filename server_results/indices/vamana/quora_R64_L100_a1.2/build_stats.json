@@ -1,0 +1,25 @@
+{
+  "dataset": "quora",
+  "N": 522931,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "seed": 0,
+  "mode": "batched",
+  "build_threads": 96,
+  "build_time_s": 23.009990817052312,
+  "pass_times_s": [
+    7.335347917047329,
+    14.914353864034638
+  ],
+  "peak_build_rss_mib": 779.26953125,
+  "rss_before_build_mib": 430.9375,
+  "vectors_mib": 255.33740234375,
+  "avg_out_degree": 56.91410147801526,
+  "max_out_degree": 64,
+  "min_out_degree": 10,
+  "graph_bytes": 135962060,
+  "cpu": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz",
+  "serialized_graph_bytes": 135962789,
+  "index_bytes_with_vectors": 403703461
+}

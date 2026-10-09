@@ -1,0 +1,134 @@
+{
+  "hostname": "gpu1",
+  "cpu_model": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz",
+  "logical_cpus": 96,
+  "physical_cores": 48,
+  "ram_gib": 1510.5,
+  "python": "3.12.15",
+  "os": "Linux-5.10.0-32-amd64-x86_64-with-glibc2.31",
+  "faiss": "1.15.1",
+  "numba": "0.68.0",
+  "numba_threads": 96,
+  "numpy": "2.5.3",
+  "sklearn": "1.9.1",
+  "fincore_cli": true,
+  "env": {
+    "BUILD_THREADS": "96",
+    "SEARCH_THREADS": "1",
+    "NUMBA_NUM_THREADS": "96",
+    "OMP_NUM_THREADS": null
+  }
+}
+[sift100k] prepared data present
+[ok] sift100k  base (100000, 128) query (10000, 128) | gt_ids.npy present
+[sift100k] exact top-100 for 10000 queries over 100000 vectors in 1.3s
+{'method': 'faiss-exact', 'param': '-', 'build_time_s': 0.024542639032006264, 'index_bytes': 51200045, '1-recall@1': 1.0, '10-recall@10': 1.0, 'mean_latency_ms': 0.3459746449952945, 'qps': 2890.3852188752176, 'timing_queries': 1000, 'timing_repeats': 2, 'timing_rel_spread': 0.005197733513855674, 'latency_ms_single_query_mode': 3.9638348032409945}
+{'method': 'faiss-hnsw', 'param': 'M=32,efC=200,efS=16', 'efSearch': 16, 'build_time_s': 0.7221209818962961, 'index_bytes': 78420834, '1-recall@1': 0.9472, '10-recall@10': 0.90771, 'mean_latency_ms': 0.03700191044481471, 'qps': 27025.63159519607, 'timing_queries': 1000, 'timing_repeats': 2, 'timing_rel_spread': 0.00567708389628968}
+{'method': 'faiss-hnsw', 'param': 'M=32,efC=200,efS=64', 'efSearch': 64, 'build_time_s': 0.7221209818962961, 'index_bytes': 78420834, '1-recall@1': 0.9971, '10-recall@10': 0.9933500000000001, 'mean_latency_ms': 0.11122750595677644, 'qps': 8990.581883483075, 'timing_queries': 1000, 'timing_repeats': 2, 'timing_rel_spread': 0.009614402614076697}
+{'method': 'faiss-hnsw', 'param': 'M=32,efC=200,efS=256', 'efSearch': 256, 'build_time_s': 0.7221209818962961, 'index_bytes': 78420834, '1-recall@1': 0.9998, '10-recall@10': 0.9997999999999999, 'mean_latency_ms': 0.35551427106838673, 'qps': 2812.82660466713, 'timing_queries': 1000, 'timing_repeats': 2, 'timing_rel_spread': 0.0007948145791786077}
+        method                 param  build_time_s  index_bytes  1-recall@1  10-recall@10  mean_latency_ms           qps  timing_queries  timing_repeats  timing_rel_spread  latency_ms_single_query_mode  efSearch
+0  faiss-exact                     -      0.024543     51200045      1.0000       1.00000         0.345975   2890.385219            1000               2           0.005198                      3.963835       NaN
+1   faiss-hnsw   M=32,efC=200,efS=16      0.722121     78420834      0.9472       0.90771         0.037002  27025.631595            1000               2           0.005677                           NaN      16.0
+2   faiss-hnsw   M=32,efC=200,efS=64      0.722121     78420834      0.9971       0.99335         0.111228   8990.581883            1000               2           0.009614                           NaN      64.0
+3   faiss-hnsw  M=32,efC=200,efS=256      0.722121     78420834      0.9998       0.99980         0.355514   2812.826605            1000               2           0.000795                           NaN     256.0
+  pass alpha=1.0: 0.7s  avg deg 18.77  max deg 64
+  pass alpha=1.2: 2.5s  avg deg 53.43  max deg 64
+{
+  "dataset": "sift100k",
+  "N": 100000,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "seed": 0,
+  "mode": "batched",
+  "build_threads": 96,
+  "build_time_s": 3.348342362907715,
+  "pass_times_s": [
+    0.667520217015408,
+    2.5152956779347733
+  ],
+  "peak_build_rss_mib": 414.51171875,
+  "rss_before_build_mib": 344.16015625,
+  "vectors_mib": 48.828125,
+  "avg_out_degree": 53.43339,
+  "max_out_degree": 64,
+  "min_out_degree": 7,
+  "graph_bytes": 26000000,
+  "cpu": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz",
+  "serialized_graph_bytes": 26000718,
+  "index_bytes_with_vectors": 77200718,
+  "path": "/users/pg25/virenmehta/ANN-search/dist/ANN-search/indices/vamana/sift100k_R64_L100_a1.2"
+}
+{'method': 'vamana', 'R': 64, 'alpha': 1.2, 'L_build': 100, 'L_search': 10, 'param': 'R=64,a=1.2,Lb=100,Ls=10', 'build_time_s': 3.3483, 'index_bytes': 77200000, 'dist_evals_per_query': 613.4752, 'expanded_per_query': 14.0286, '1-recall@1': 0.9677, '10-recall@10': 0.9382, 'mean_latency_ms': 0.039, 'qps': 25646.8176, 'timing_queries': 1000, 'timing_repeats': 2, 'timing_rel_spread': 0.0077}
+{'method': 'vamana', 'R': 64, 'alpha': 1.2, 'L_build': 100, 'L_search': 50, 'param': 'R=64,a=1.2,Lb=100,Ls=50', 'build_time_s': 3.3483, 'index_bytes': 77200000, 'dist_evals_per_query': 1565.2224, 'expanded_per_query': 53.0256, '1-recall@1': 0.9988, '10-recall@10': 0.9981, 'mean_latency_ms': 0.1283, 'qps': 7791.6321, 'timing_queries': 1000, 'timing_repeats': 2, 'timing_rel_spread': 0.0068}
+{'method': 'vamana', 'R': 64, 'alpha': 1.2, 'L_build': 100, 'L_search': 100, 'param': 'R=64,a=1.2,Lb=100,Ls=100', 'build_time_s': 3.3483, 'index_bytes': 77200000, 'dist_evals_per_query': 2457.7258, 'expanded_per_query': 102.7632, '1-recall@1': 0.9998, '10-recall@10': 0.9997, 'mean_latency_ms': 0.2224, 'qps': 4497.1948, 'timing_queries': 1000, 'timing_repeats': 2, 'timing_rel_spread': 0.0027}
+   method   R  alpha  L_build  L_search                     param  build_time_s  index_bytes  dist_evals_per_query  expanded_per_query  1-recall@1  10-recall@10  mean_latency_ms           qps  timing_queries  timing_repeats  timing_rel_spread
+0  vamana  64    1.2      100        10   R=64,a=1.2,Lb=100,Ls=10      3.348342     77200000              613.4752             14.0286      0.9677       0.93816         0.038991  25646.817604            1000               2           0.007743
+1  vamana  64    1.2      100        50   R=64,a=1.2,Lb=100,Ls=50      3.348342     77200000             1565.2224             53.0256      0.9988       0.99812         0.128343   7791.632124            1000               2           0.006756
+2  vamana  64    1.2      100       100  R=64,a=1.2,Lb=100,Ls=100      3.348342     77200000             2457.7258            102.7632      0.9998       0.99967         0.222361   4497.194832            1000               2           0.002676
+{
+  "query_id": 0,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "L_search": 50,
+  "exact_top10": [
+    36538,
+    36267,
+    2176,
+    3752,
+    68299,
+    49874,
+    882,
+    87578,
+    4009,
+    2837
+  ],
+  "vamana_top10": [
+    36538,
+    36267,
+    2176,
+    3752,
+    68299,
+    49874,
+    882,
+    87578,
+    4009,
+    2837
+  ],
+  "10-recall@10": 1.0,
+  "vertices_expanded": 52,
+  "distance_evaluations": 1618
+}
+PQ trained+encoded in 1.8s
+{
+  "dataset": "sift100k",
+  "N": 100000,
+  "D": 128,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "start": 34776,
+  "rec_size": 772,
+  "nodes_per_sector": 5,
+  "sector_bytes": 4096,
+  "record_layout": "[128 x float32 vector | int32 degree | 64 x int32 neighbours], 772 B, 5 records per 4 KiB sector, no record crosses a sector",
+  "pq_m": 32,
+  "pq_nbits": 8,
+  "pq_train_sample": 100000,
+  "pq_seed": 0,
+  "pq_time_s": 1.829442816087976,
+  "write_time_s": 0.26735841296613216,
+  "index_bin_bytes": 81920000,
+  "pq_codes_bytes": 3200128,
+  "pq_centroids_bytes": 131200,
+  "total_on_disk_bytes": 85251328
+}
+[ssd] {'path': 'indices/disk/sift100k_R64_L100_a1.2_pq32', 'mount_source': '/dev/md127', 'disk': '/dev/md127', 'model': '', 'rota': '0', 'tran': '', 'size': '7T', 'rotational': 'SSD/NVMe (non-rotational)'}
+{'label': 'ssd-cold', 'L_search': 50, 'W': 4, 'io': 'fadvise', 'num_queries': 300, '1-recall@1': 1.0, '10-recall@10': 0.995, 'mean_latency_ms': 5.8767, 'p50_latency_ms': 3.6145, 'p95_latency_ms': 4.8355, 'p99_latency_ms': 5.374, 'qps': 170.119, 'reads_per_query': 59.1167, 'bytes_per_query': 242141.8667, 'rounds_per_query': 16.05, 'expansions_per_query': 59.14, 'pq_dists_per_query': 1817.43, 'storage_read_bytes_per_query': 139236.6933, 'peak_rss_mib': 187.8516, 'resident_index_ram_mib': 3.5582, 'ram_limit_gib': 8.0, 'ram_limit_mechanism': 'setrlimit(RLIMIT_AS)', 'device': 'ssd', 'cache': 'cold', 'resident_frac_before_run': 0.0, 'resident_bytes_before_run': 0}
+{'label': 'ssd-warm', 'L_search': 50, 'W': 4, 'io': 'fadvise', 'num_queries': 300, '1-recall@1': 1.0, '10-recall@10': 0.995, 'mean_latency_ms': 0.9485, 'p50_latency_ms': 0.9299, 'p95_latency_ms': 1.0112, 'p99_latency_ms': 1.1063, 'qps': 1053.1804, 'reads_per_query': 59.1167, 'bytes_per_query': 242141.8667, 'rounds_per_query': 16.05, 'expansions_per_query': 59.14, 'pq_dists_per_query': 1817.43, 'storage_read_bytes_per_query': 0.0, 'peak_rss_mib': 159.8242, 'resident_index_ram_mib': 3.5582, 'ram_limit_gib': 8.0, 'ram_limit_mechanism': 'setrlimit(RLIMIT_AS)', 'device': 'ssd', 'cache': 'warm', 'resident_frac_before_run': 0.5099, 'resident_bytes_before_run': 45109248}
+device cache  L_search  1-recall@1  10-recall@10  mean_latency_ms  p50_latency_ms  p95_latency_ms         qps  reads_per_query  bytes_per_query  rounds_per_query  expansions_per_query  storage_read_bytes_per_query  peak_rss_mib  resident_frac_before_run
+   ssd  cold        50         1.0         0.995         5.876676        3.614509        4.835535  170.118991        59.116667    242141.866667             16.05                 59.14                 139236.693333    187.851562                    0.0000
+   ssd  warm        50         1.0         0.995         0.948514        0.929893        1.011195 1053.180411        59.116667    242141.866667             16.05                 59.14                      0.000000    159.824219                    0.5099
+wrote /users/pg25/virenmehta/ANN-search/dist/ANN-search/results/REPORT_TABLES.md
+SMOKE TEST PASSED

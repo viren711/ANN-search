@@ -1,0 +1,66 @@
+  pass alpha=1.0: 140.2s  avg deg 23.91  max deg 64
+  pass alpha=1.2: 306.2s  avg deg 55.21  max deg 64
+{
+  "dataset": "msmarco",
+  "N": 8841823,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "seed": 0,
+  "mode": "batched",
+  "build_threads": 96,
+  "build_time_s": 459.06568837095983,
+  "pass_times_s": [
+    140.2197688369779,
+    306.23485432902817
+  ],
+  "peak_build_rss_mib": 10136.73828125,
+  "rss_before_build_mib": 4496.94921875,
+  "vectors_mib": 4317.29638671875,
+  "avg_out_degree": 55.208714763912376,
+  "max_out_degree": 64,
+  "min_out_degree": 4,
+  "graph_bytes": 2298873980,
+  "cpu": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz",
+  "serialized_graph_bytes": 2298874715,
+  "index_bytes_with_vectors": 6825888091,
+  "path": "/users/pg25/virenmehta/ANN-search/dist/ANN-search/indices/vamana/msmarco_R64_L100_a1.2"
+}
+PQ trained+encoded in 4.8s
+{
+  "dataset": "msmarco",
+  "N": 8841823,
+  "D": 128,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "start": 4973502,
+  "rec_size": 772,
+  "nodes_per_sector": 5,
+  "sector_bytes": 4096,
+  "record_layout": "[128 x float32 vector | int32 degree | 64 x int32 neighbours], 772 B, 5 records per 4 KiB sector, no record crosses a sector",
+  "pq_m": 32,
+  "pq_nbits": 8,
+  "pq_train_sample": 250000,
+  "pq_seed": 0,
+  "pq_time_s": 4.811972978990525,
+  "write_time_s": 22.49096482200548,
+  "index_bin_bytes": 7243223040,
+  "pq_codes_bytes": 282938464,
+  "pq_centroids_bytes": 131200,
+  "total_on_disk_bytes": 7526292704
+}
+[ssd] {'path': 'indices/disk/msmarco_R64_L100_a1.2_pq32', 'mount_source': '/dev/md127', 'disk': '/dev/md127', 'model': '', 'rota': '0', 'tran': '', 'size': '7T', 'rotational': 'SSD/NVMe (non-rotational)'}
+{'label': 'ssd-cold', 'L_search': 50, 'W': 4, 'io': 'fadvise', 'num_queries': 1000, '1-recall@1': 0.955, '10-recall@10': 0.9334, 'mean_latency_ms': 4.4997, 'p50_latency_ms': 4.4131, 'p95_latency_ms': 5.6906, 'p99_latency_ms': 6.7798, 'qps': 222.1566, 'reads_per_query': 72.026, 'bytes_per_query': 295018.496, 'rounds_per_query': 19.606, 'expansions_per_query': 72.968, 'pq_dists_per_query': 2624.626, 'storage_read_bytes_per_query': 219115.52, 'peak_rss_mib': 464.5352, 'resident_index_ram_mib': 303.6849, 'ram_limit_gib': 8.0, 'ram_limit_mechanism': 'setrlimit(RLIMIT_AS)', 'device': 'ssd', 'cache': 'cold', 'resident_frac_before_run': 0.0, 'resident_bytes_before_run': 0}
+{'label': 'ssd-warm', 'L_search': 50, 'W': 4, 'io': 'fadvise', 'num_queries': 1000, '1-recall@1': 0.955, '10-recall@10': 0.9334, 'mean_latency_ms': 1.1352, 'p50_latency_ms': 1.0966, 'p95_latency_ms': 1.3478, 'p99_latency_ms': 1.598, 'qps': 880.2368, 'reads_per_query': 72.026, 'bytes_per_query': 295018.496, 'rounds_per_query': 19.606, 'expansions_per_query': 72.968, 'pq_dists_per_query': 2624.626, 'storage_read_bytes_per_query': 0.0, 'peak_rss_mib': 460.5195, 'resident_index_ram_mib': 303.6849, 'ram_limit_gib': 8.0, 'ram_limit_mechanism': 'setrlimit(RLIMIT_AS)', 'device': 'ssd', 'cache': 'warm', 'resident_frac_before_run': 0.0303, 'resident_bytes_before_run': 502190080}
+{'label': 'ssd-cold', 'L_search': 100, 'W': 4, 'io': 'fadvise', 'num_queries': 1000, '1-recall@1': 0.972, '10-recall@10': 0.9696, 'mean_latency_ms': 7.3493, 'p50_latency_ms': 7.2282, 'p95_latency_ms': 8.804, 'p99_latency_ms': 10.0699, 'qps': 136.0369, 'reads_per_query': 120.781, 'bytes_per_query': 494718.976, 'rounds_per_query': 31.738, 'expansions_per_query': 121.979, 'pq_dists_per_query': 3801.368, 'storage_read_bytes_per_query': 371789.824, 'peak_rss_mib': 460.3008, 'resident_index_ram_mib': 303.6849, 'ram_limit_gib': 8.0, 'ram_limit_mechanism': 'setrlimit(RLIMIT_AS)', 'device': 'ssd', 'cache': 'cold', 'resident_frac_before_run': 0.0, 'resident_bytes_before_run': 0}
+{'label': 'ssd-warm', 'L_search': 100, 'W': 4, 'io': 'fadvise', 'num_queries': 1000, '1-recall@1': 0.972, '10-recall@10': 0.9696, 'mean_latency_ms': 1.6791, 'p50_latency_ms': 1.6403, 'p95_latency_ms': 1.9277, 'p99_latency_ms': 2.2528, 'qps': 595.2554, 'reads_per_query': 120.781, 'bytes_per_query': 494718.976, 'rounds_per_query': 31.738, 'expansions_per_query': 121.979, 'pq_dists_per_query': 3801.368, 'storage_read_bytes_per_query': 0.0, 'peak_rss_mib': 460.2539, 'resident_index_ram_mib': 303.6849, 'ram_limit_gib': 8.0, 'ram_limit_mechanism': 'setrlimit(RLIMIT_AS)', 'device': 'ssd', 'cache': 'warm', 'resident_frac_before_run': 0.0513, 'resident_bytes_before_run': 654864384}
+{'label': 'ssd-cold', 'L_search': 200, 'W': 4, 'io': 'fadvise', 'num_queries': 1000, '1-recall@1': 0.978, '10-recall@10': 0.9843, 'mean_latency_ms': 13.313, 'p50_latency_ms': 13.182, 'p95_latency_ms': 15.0022, 'p99_latency_ms': 15.975, 'qps': 75.1048, 'reads_per_query': 219.214, 'bytes_per_query': 897900.544, 'rounds_per_query': 56.401, 'expansions_per_query': 220.693, 'pq_dists_per_query': 5993.285, 'storage_read_bytes_per_query': 658624.512, 'peak_rss_mib': 460.7969, 'resident_index_ram_mib': 303.6849, 'ram_limit_gib': 8.0, 'ram_limit_mechanism': 'setrlimit(RLIMIT_AS)', 'device': 'ssd', 'cache': 'cold', 'resident_frac_before_run': 0.0, 'resident_bytes_before_run': 0}
+{'label': 'ssd-warm', 'L_search': 200, 'W': 4, 'io': 'fadvise', 'num_queries': 1000, '1-recall@1': 0.978, '10-recall@10': 0.9843, 'mean_latency_ms': 2.8322, 'p50_latency_ms': 2.7799, 'p95_latency_ms': 3.2014, 'p99_latency_ms': 3.562, 'qps': 352.9805, 'reads_per_query': 219.214, 'bytes_per_query': 897900.544, 'rounds_per_query': 56.401, 'expansions_per_query': 220.693, 'pq_dists_per_query': 5993.285, 'storage_read_bytes_per_query': 0.0, 'peak_rss_mib': 460.2031, 'resident_index_ram_mib': 303.6849, 'ram_limit_gib': 8.0, 'ram_limit_mechanism': 'setrlimit(RLIMIT_AS)', 'device': 'ssd', 'cache': 'warm', 'resident_frac_before_run': 0.0909, 'resident_bytes_before_run': 941699072}
+device cache  L_search  1-recall@1  10-recall@10  mean_latency_ms  p50_latency_ms  p95_latency_ms        qps  reads_per_query  bytes_per_query  rounds_per_query  expansions_per_query  storage_read_bytes_per_query  peak_rss_mib  resident_frac_before_run
+   ssd  cold        50       0.955        0.9334         4.499734        4.413090        5.690569 222.156621           72.026       295018.496            19.606                72.968                    219115.520    464.535156                  0.000000
+   ssd  warm        50       0.955        0.9334         1.135153        1.096621        1.347836 880.236831           72.026       295018.496            19.606                72.968                         0.000    460.519531                  0.030251
+   ssd  cold       100       0.972        0.9696         7.349331        7.228170        8.804034 136.036887          120.781       494718.976            31.738               121.979                    371789.824    460.300781                  0.000000
+   ssd  warm       100       0.972        0.9696         1.679102        1.640305        1.927710 595.255442          120.781       494718.976            31.738               121.979                         0.000    460.253906                  0.051329
+   ssd  cold       200       0.978        0.9843        13.313029       13.181959       15.002199  75.104754          219.214       897900.544            56.401               220.693                    658624.512    460.796875                  0.000000
+   ssd  warm       200       0.978        0.9843         2.832176        2.779933        3.201405 352.980520          219.214       897900.544            56.401               220.693                         0.000    460.203125                  0.090930

@@ -10,7 +10,7 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
+/dist/
 downloads/
 eggs/
 .eggs/
@@ -217,9 +217,34 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# ---- project data / artifacts (never commit datasets or indices) ----
-dataset/
-indices/
-logs/
+# =============================================================================
+# CS6101 PA2 — project-specific rules
+# =============================================================================
+# Large data: never commit (the assignment also forbids shipping datasets).
+/dataset/
+/indices/
 *.npy
 *.index
+*.bin
+*.fvecs
+*.ivecs
+*.parquet
+
+# Run-time output of the local machine (dev / smoke runs). The authoritative
+# experiment results from the server live in server_results/ and ARE committed.
+/results/
+/logs/
+
+# Offline-server bundle (rebuilt with ./make_bundle.sh): Python runtime, wheels, archives
+/offline/
+/dist/
+results_bundle_*.tar.gz
+*.tar
+*.zip
+
+# Numba JIT cache (inside __pycache__, listed again for clarity)
+*.nbi
+*.nbc
+
+# keep the server run logs (evidence for the report)
+!server_results/logs/*.log

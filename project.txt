@@ -4,7 +4,10 @@
  Deadline: 16 October 2026
 ================================================================================
 
-Legend:  [x] done   [~] code written, still to run on the full data   [ ] to do
+Legend:  [x] done   [~] code written, still to run on the full data   [ ] to do   [-] not possible
+
+STATUS (9 Oct 2026): every compulsory part + extra credit 1 ran on the server (gpu1, 8 Oct).
+Results: server_results/. Analysis and write-up: assignment.txt. Optional follow-ups: section 8.
 
 --------------------------------------------------------------------------------
 0. REQUIREMENTS ANALYSIS (what the assignment asks for)
@@ -107,10 +110,10 @@ Timing protocol, used by every method:
    latency = wall/nq), fixed random 1000-query timing subset (seed 0), warm-up 200 queries,
    median of 5 repeats. Recall over the full query set. Index build uses 12 threads.
 HNSW: M=32, efConstruction=200, efSearch in {16, 32, 64, 128, 256, 512}.
-[x] 3.1 SIFT100K (dev) — done, results/sift100k/faiss.csv
-[ ] 3.2 SIFT1M   python scripts/run_faiss.py --dataset sift1m
-[ ] 3.3 Quora    python scripts/run_faiss.py --dataset quora
-[ ] 3.4 NQ       python scripts/run_faiss.py --dataset nq
+[x] 3.1 SIFT100K (dev)
+[x] 3.2 SIFT1M   python scripts/run_faiss.py --dataset sift1m
+[x] 3.3 Quora    python scripts/run_faiss.py --dataset quora
+[x] 3.4 NQ       python scripts/run_faiss.py --dataset nq
         -> results/<ds>/faiss.csv, hnsw_recall_latency.png, faiss_system.json
 
 --------------------------------------------------------------------------------
@@ -154,7 +157,7 @@ HNSW: M=32, efConstruction=200, efSearch in {16, 32, 64, 128, 256, 512}.
         Fit: time ~ N^1.32. Extrapolation: SIFT1M ≈ 340 s (~6 min),
         Quora (523K) ≈ 145 s, NQ (2.68M) ≈ 1250 s (~21 min). All builds are feasible.
         NQ build memory ≈ vectors 1.31 GiB + graph 0.69 GiB + tags 0.13 GiB, well inside RAM.
-[ ] 4.9 Full builds (reference config):
+[x] 4.9 Full builds (reference config):
           python scripts/build_vamana.py --dataset sift1m
           python scripts/build_vamana.py --dataset quora
           python scripts/build_vamana.py --dataset nq      (run scaling test on NQ first)
@@ -164,29 +167,75 @@ HNSW: M=32, efConstruction=200, efSearch in {16, 32, 64, 128, 256, 512}.
 5. PART 3 — PARAMETER STUDY AND COMPARISON
 --------------------------------------------------------------------------------
 [x] 5.0 SIFT100K reference L_search sweep ............... scripts/search_vamana.py
-[ ] 5.1 3a  python scripts/param_study.py
+[x] 5.1 3a  python scripts/param_study.py
         configs: (R, L_build, alpha) = (64,100,1.2) ref, (32,100,1.2), (96,100,1.2),
                  (64,100,1.0), (64,100,1.4); L_search in {10,20,30,50,75,100,150,200}
         -> results/sift100k/param_study.csv, param_recall_vs_Lsearch.png,
            param_recall_vs_latency.png, param_recall_vs_expanded.png
-[ ] 5.2 3b  for ds in sift1m quora nq:
+[x] 5.2 3b  for ds in sift1m quora nq:
               python scripts/search_vamana.py --dataset $ds
               python scripts/compare.py --dataset $ds
         -> results/<ds>/compare_recall_latency.png, compare_table.csv
 
 --------------------------------------------------------------------------------
-6. EXTRA CREDIT (optional)
+6. EXTRA CREDIT — disk-resident DiskANN       (ann/diskann.py, ann/pagecache.py)
 --------------------------------------------------------------------------------
-[ ] 6.1 Download msmarco (download_data.py --only msmarco), PCA-128 (prepare_beir.py
-        supports --dataset msmarco), exact GT.
-[ ] 6.2 Disk layout: one fixed-size record per vertex = [128 x float32 vector | degree |
-        R x int32 neighbours], at offset = id * record_size (direct lookup by id).
-        In RAM: FAISS PQ codes (e.g. 32 bytes/vector) + the entry point.
-[ ] 6.3 Beam search (beam width W ~ 4): read W records per round with pread / io_uring;
-        PQ distances for navigation, full-precision re-rank of visited nodes.
-[ ] 6.4 Cold/warm protocol: fincore -> posix_fadvise(DONTNEED) -> fincore -> run.
-        Record reads/query, bytes/query, rounds/query, p50/p95 latency, and peak RSS (<= 8 GiB).
-[ ] 6.5 HDD vs SSD only if a physical HDD is available.
+[x] 6.1 MS MARCO support: download_data.py / prepare_beir.py --dataset msmarco
+        (8.84M passages, ~18.8 GB parquet, dev split = 6,980 queries, same PCA-128 recipe)
+[x] 6.2 Disk layout (scripts/ec_build_disk_index.py), DiskANN-style sector packing:
+        record = [128 x f32 vector | i32 degree | R x i32 nbrs] = 772 B, 5 records per 4 KiB
+        sector, no record crosses a sector; offset(v) = (v//5)*4096 + (v%5)*772.
+        In RAM only: FAISS PQ codes (M=32 -> 32 B/vector, ~283 MB for MS MARCO), PQ centroids,
+        entry point, an int32 visited-tag array, and per-query buffers.
+[x] 6.3 Beam search (W=4): candidate list ordered by PQ distance; each round fetches the
+        W closest unexpanded vertices' sectors together; exact distance from the on-disk vector;
+        final top-k = expanded vertices re-ranked by exact distance.
+        I/O mode "fadvise" (default): WILLNEED on all W sectors, then pread -> W reads in flight.
+        SIFT100K NVMe test, L=50: fadvise warm 0.77 / cold 1.48 ms; threads 1.93 / 2.44;
+        serial 0.72 / 2.02. POSIX_FADV_RANDOM disables readahead.
+[x] 6.4 Cold/warm driver (scripts/ec_cold_warm.py): fincore -> fadvise(DONTNEED) per file ->
+        fincore -> new process runs the timed workload. Warm = exercise run, then timed run.
+        Search process capped with setrlimit(RLIMIT_AS = 8 GiB). Reports recall, mean/p50/p95,
+        QPS, reads, bytes, rounds and expansions per query, kernel storage bytes/query
+        (/proc/self/io), and peak RSS.
+        Verified on SIFT100K: residency 0% before cold; cold reads hit storage, warm reads
+        storage 0 B; recall identical to in-memory Vamana (0.995 @ L=50); peak RSS ~160 MiB.
+[x] 6.5 Full MS MARCO run on the server:  ./run_all.sh ec  (server_results/results/extra_credit/)
+[-] 6.6 HDD vs SSD: no HDD on the server (all SATA SSD) or the laptop (NVMe) -> documented,
+        pipeline ready (EC_HDD_DIR / EC_SSD_DIR).
+
+--------------------------------------------------------------------------------
+6c. OFFLINE SERVER BUNDLE (server has 4 GPUs but NO internet) — see COMMANDS.txt
+--------------------------------------------------------------------------------
+[x] offline/cpython-3.12-x86_64-linux-gnu.tar.gz: python-build-standalone 3.12.15 (20261003)
+[x] offline/wheels/: pip download --only-binary=:all: --python-version 3.12, platform
+    manylinux_2_28 / 2_27 / 2_17 / 2014 x86_64 (229 MB). Server needs x86_64 and glibc >= 2.28.
+[x] setup_env.sh installs with --no-index from offline/wheels into a venv of the bundled Python.
+[x] Data travels already prepared (PCA done here, seed 42, sample 200K):
+      ANN-search_data_compulsory.tar  sift1m, sift100k, quora, nq (2.2 GB, incl. GT)
+      ANN-search_data_msmarco.tar     msmarco: 8,841,823 x 128, 6,980 dev queries,
+                                      PCA variance 0.6064 (4.3 GB); GT computed on the server
+    The run_all.sh "data" stage only verifies prepared data (scripts/check_data.py) and
+    downloads only if both prepared and raw data are missing.
+[x] Offline clean-room test (unshare -rn, network off): unzip + extract + setup_env (23 s)
+    + smoke (77 s) + data check of all 4 datasets all passed.
+[x] make_bundle.sh -> dist/{ANN-search_offline.zip, *_data_*.tar, SHA256SUMS}
+
+--------------------------------------------------------------------------------
+6b. SERVER PIPELINE (run_all.sh) — see README.md
+--------------------------------------------------------------------------------
+[x] config.env holds all parameters. Stages are resumable (logs/stages/*.done), with a log
+    per stage.
+[x] ./setup_env.sh -> ./run_all.sh smoke -> ./run_all.sh (compulsory) -> ./run_all.sh ec
+    (exact command list for the server: COMMANDS.txt)
+[x] Clean-room test: the zip was unpacked in an empty directory, then setup_env (2 min) and
+    smoke (73 s) both passed.
+[x] collect_results.sh -> results_bundle_<host>_<date>.tar.gz (the only file to copy back)
+[x] scripts/make_report_tables.py -> results/REPORT_TABLES.md (all deliverable tables)
+    GPUs are deliberately unused: the comparison is CPU latency with identical thread settings.
+    Methodology note: in batch mode, FAISS exact search uses a BLAS GEMM path for large batches.
+    On SIFT100K it measures 0.273 ms/query with 1000-query batches vs 2.155 ms one query at a
+    time, so run_faiss.py records both. HNSW and Vamana with 1 thread are unaffected.
 
 --------------------------------------------------------------------------------
 7. INITIAL ANALYSIS (results so far)
@@ -221,3 +270,21 @@ Observations
  * After pass 1 (alpha=1) the average degree is only ~19. The alpha=1.2 pass adds long-range
    edges and raises it to ~53. That second pass costs ~2x as much as the first.
  * Index size: graph 26.0 MB + vectors 51.2 MB = 77.2 MB, close to HNSW M=32 (78.4 MB).
+
+--------------------------------------------------------------------------------
+8. SERVER RUN (8 Oct 2026) AND FOLLOW-UPS
+--------------------------------------------------------------------------------
+[x] 8.1 Server: 2x Xeon Gold 5220R (96 threads), 1.5 TiB RAM, SATA-SSD RAID, offline.
+        Every stage passed: data gt summary part1 scaling part2 part3a part3b ec_prep ec1.
+[x] 8.2 Results bundle unpacked into server_results/ (tracked in git; local results/ is not).
+[x] 8.3 Analysis written up in assignment.txt (all tables plus discussion for 3a/3b/EC1).
+[x] 8.4 Plot axis labels fixed; scripts/replot.py redraws every figure from the CSVs.
+[ ] 8.5 Optional follow-ups: ./run_all.sh followup (~30-40 min), see assignment.txt §10
+        (1) HNSW distance/hop counters            scripts/hnsw_counts.py
+        (2) MS MARCO in-memory Vamana reference   search_vamana.py --dataset msmarco
+        (3) disk search at L = 300, 500           ec_cold_warm.py
+        (4) beam-width ablation W = 1, 2, 8       ec_cold_warm.py
+        (5) NQ denser graph R=96, L_build=200     (diagnostic, FOLLOWUP_NQ_VARIANT=0 skips it)
+        Transfer: ./make_bundle.sh patch -> dist/ANN-search_code_patch.zip (COMMANDS.txt, part D)
+[ ] 8.6 Write the report (mirror the parts; include LLM-usage documentation + chat links)
+

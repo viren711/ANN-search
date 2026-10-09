@@ -21,7 +21,7 @@ import numpy as np
 import pyarrow.parquet as pq
 from sklearn.decomposition import PCA
 
-from ann.data import RAW, ds_dir, save_meta
+from ann.data import RAW, SPLIT, ds_dir, save_meta
 
 DIM_IN, DIM_OUT = 1024, 128
 
@@ -94,19 +94,20 @@ def main():
     del base
     print(f"  projected corpus in {time.perf_counter() - t0:.1f}s")
 
-    # ---- queries (test split)
-    qt = pq.read_table(src / "queries" / "test.parquet", columns=["_id", "emb"])
+    # ---- queries (evaluation split)
+    split = SPLIT[args.dataset]
+    qt = pq.read_table(src / "queries" / f"{split}.parquet", columns=["_id", "emb"])
     q = np.asarray(qt.column("emb").combine_chunks().flatten().to_numpy(zero_copy_only=False),
                    np.float32).reshape(-1, DIM_IN)
     np.save(out / "query.npy", project(q, mean, comps))
     (out / "query_ids.txt").write_text("\n".join(qt.column("_id").to_pylist()))
-    qrels_q = set(pq.read_table(src / "qrels" / "test.parquet").column(0).to_pylist())
-    print(f"  queries: {q.shape[0]} (distinct query ids in test qrels: {len(qrels_q)})")
+    qrels_q = set(pq.read_table(src / "qrels" / f"{split}.parquet").column(0).to_pylist())
+    print(f"  {split} queries: {q.shape[0]} (distinct query ids in {split} qrels: {len(qrels_q)})")
 
     save_meta(args.dataset, {
         "name": args.dataset, "corpus_size": int(N), "num_queries": int(q.shape[0]),
         "original_dim": DIM_IN, "search_dim": DIM_OUT, "metric": "L2 on L2-normalised vectors",
-        "source": f"CohereLabs/beir-embed-english-v3 ({args.dataset}, test queries)",
+        "source": f"CohereLabs/beir-embed-english-v3 ({args.dataset}, {split} queries)",
         "pca_impl": f"sklearn.decomposition.PCA(n_components=128, svd_solver='covariance_eigh')",
         "pca_fit_sample_size": int(n_s), "pca_seed": args.seed,
         "pca_variance_explained": evr, "pca_fit_time_s": fit_s,

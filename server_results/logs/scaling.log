@@ -1,0 +1,204 @@
+  pass alpha=1.0: 0.6s  avg deg 18.77  max deg 64
+  pass alpha=1.2: 2.3s  avg deg 53.43  max deg 64
+{
+  "dataset": "sift1m",
+  "N": 100000,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "seed": 0,
+  "mode": "batched",
+  "build_threads": 96,
+  "build_time_s": 3.033667329000309,
+  "pass_times_s": [
+    0.606659373966977,
+    2.266048114048317
+  ],
+  "peak_build_rss_mib": 729.94140625,
+  "rss_before_build_mib": 663.85546875,
+  "vectors_mib": 48.828125,
+  "avg_out_degree": 53.43339,
+  "max_out_degree": 64,
+  "min_out_degree": 7,
+  "graph_bytes": 26000000,
+  "cpu": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz"
+}
+  pass alpha=1.0: 2.8s  avg deg 21.75  max deg 64
+  pass alpha=1.2: 9.1s  avg deg 56.66  max deg 64
+{
+  "dataset": "sift1m",
+  "N": 250000,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "seed": 0,
+  "mode": "batched",
+  "build_threads": 96,
+  "build_time_s": 12.347835669992492,
+  "pass_times_s": [
+    2.8305681239580736,
+    9.141963473986834
+  ],
+  "peak_build_rss_mib": 1347.79296875,
+  "rss_before_build_mib": 1182.046875,
+  "vectors_mib": 122.0703125,
+  "avg_out_degree": 56.66224,
+  "max_out_degree": 64,
+  "min_out_degree": 8,
+  "graph_bytes": 65000000,
+  "cpu": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz"
+}
+  pass alpha=1.0: 7.3s  avg deg 22.46  max deg 64
+  pass alpha=1.2: 18.3s  avg deg 57.50  max deg 64
+{
+  "dataset": "sift1m",
+  "N": 500000,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "seed": 0,
+  "mode": "batched",
+  "build_threads": 96,
+  "build_time_s": 26.393529610009864,
+  "pass_times_s": [
+    7.324874882004224,
+    18.306560561060905
+  ],
+  "peak_build_rss_mib": 1572.69140625,
+  "rss_before_build_mib": 1365.671875,
+  "vectors_mib": 244.140625,
+  "avg_out_degree": 57.504,
+  "max_out_degree": 64,
+  "min_out_degree": 7,
+  "graph_bytes": 130000000,
+  "cpu": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz"
+}
+{
+  "dataset": "sift1m",
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "threads": 96,
+  "measurements": [
+    {
+      "N": 100000,
+      "build_time_s": 3.033667329000309,
+      "peak_rss_mib": 729.94140625
+    },
+    {
+      "N": 250000,
+      "build_time_s": 12.347835669992492,
+      "peak_rss_mib": 1347.79296875
+    },
+    {
+      "N": 500000,
+      "build_time_s": 26.393529610009864,
+      "peak_rss_mib": 1572.69140625
+    }
+  ],
+  "fit_exponent": 1.3539817432175356,
+  "full_N": 1000000,
+  "estimated_full_build_s": 71.98938365684793
+}
+  pass alpha=1.0: 0.7s  avg deg 22.68  max deg 64
+  pass alpha=1.2: 2.3s  avg deg 58.66  max deg 64
+{
+  "dataset": "nq",
+  "N": 100000,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "seed": 0,
+  "mode": "batched",
+  "build_threads": 96,
+  "build_time_s": 3.1081123400945216,
+  "pass_times_s": [
+    0.679415422026068,
+    2.264379029045813
+  ],
+  "peak_build_rss_mib": 1561.76953125,
+  "rss_before_build_mib": 1488.9453125,
+  "vectors_mib": 48.828125,
+  "avg_out_degree": 58.65834,
+  "max_out_degree": 64,
+  "min_out_degree": 16,
+  "graph_bytes": 26000000,
+  "cpu": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz"
+}
+  pass alpha=1.0: 3.0s  avg deg 24.54  max deg 64
+  pass alpha=1.2: 7.8s  avg deg 59.61  max deg 64
+{
+  "dataset": "nq",
+  "N": 250000,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "seed": 0,
+  "mode": "batched",
+  "build_threads": 96,
+  "build_time_s": 11.12365583202336,
+  "pass_times_s": [
+    2.9566641009878367,
+    7.80193026503548
+  ],
+  "peak_build_rss_mib": 2994.3359375,
+  "rss_before_build_mib": 2834.64453125,
+  "vectors_mib": 122.0703125,
+  "avg_out_degree": 59.61094,
+  "max_out_degree": 64,
+  "min_out_degree": 16,
+  "graph_bytes": 65000000,
+  "cpu": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz"
+}
+  pass alpha=1.0: 8.6s  avg deg 25.60  max deg 64
+  pass alpha=1.2: 15.6s  avg deg 60.16  max deg 64
+{
+  "dataset": "nq",
+  "N": 500000,
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "seed": 0,
+  "mode": "batched",
+  "build_threads": 96,
+  "build_time_s": 24.955323711037636,
+  "pass_times_s": [
+    8.594805963919498,
+    15.635994642972946
+  ],
+  "peak_build_rss_mib": 3218.87890625,
+  "rss_before_build_mib": 3018.0703125,
+  "vectors_mib": 244.140625,
+  "avg_out_degree": 60.157948,
+  "max_out_degree": 64,
+  "min_out_degree": 8,
+  "graph_bytes": 130000000,
+  "cpu": "Intel(R) Xeon(R) Gold 5220R CPU @ 2.20GHz"
+}
+{
+  "dataset": "nq",
+  "R": 64,
+  "L_build": 100,
+  "alpha": 1.2,
+  "threads": 96,
+  "measurements": [
+    {
+      "N": 100000,
+      "build_time_s": 3.1081123400945216,
+      "peak_rss_mib": 1561.76953125
+    },
+    {
+      "N": 250000,
+      "build_time_s": 11.12365583202336,
+      "peak_rss_mib": 2994.3359375
+    },
+    {
+      "N": 500000,
+      "build_time_s": 24.955323711037636,
+      "peak_rss_mib": 3218.87890625
+    }
+  ],
+  "fit_exponent": 1.2993706223235946,
+  "full_N": 2681468,
+  "estimated_full_build_s": 228.83565291682916
+}

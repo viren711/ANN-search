@@ -32,16 +32,17 @@ if __name__ == "__main__":
     a = ap.parse_args()
 
     xb, xq, gt = load_base(DS), load_query(DS), load_gt(DS)
+    (RESULTS / DS).mkdir(parents=True, exist_ok=True)
     frames, series = [], {}
     for c in a.configs:
         R, L, alpha = int(c.split(",")[0]), int(c.split(",")[1]), float(c.split(",")[2])
         d = index_dir(DS, R, L, alpha)
-        if not (d / "build_stats.json").exists():
-            build(DS, R, L, alpha, threads=a.build_threads)
+        build(DS, R, L, alpha, threads=a.build_threads, skip_existing=True)
         bstats = json.loads((d / "build_stats.json").read_text())
         idx = VamanaIndex.load(d, xb)
         idx.params["build_time_s"] = bstats["build_time_s"]
-        df = sweep(idx, xq, gt, a.Ls, threads=a.threads)
+        df = sweep(idx, xq, gt, a.Ls, threads=a.threads,
+                   perq_path=RESULTS / DS / f"param_R{R}_L{L}_a{alpha}_perquery.npz")
         df["avg_out_degree"] = bstats["avg_out_degree"]
         frames.append(df)
         series[f"R={R}, α={alpha}, L_b={L}"] = df

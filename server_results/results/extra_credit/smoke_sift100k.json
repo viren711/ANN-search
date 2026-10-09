@@ -1,0 +1,99 @@
+{
+  "args": {
+    "dataset": "sift100k",
+    "src": null,
+    "copies": [
+      "ssd=indices/disk/sift100k_R64_L100_a1.2_pq32"
+    ],
+    "Ls": [
+      50
+    ],
+    "W": 4,
+    "io": "fadvise",
+    "num_queries": 300,
+    "num_queries_hdd": 200,
+    "ram_limit_gib": 8.0,
+    "out_name": "smoke_sift100k"
+  },
+  "devices": {
+    "ssd": {
+      "path": "indices/disk/sift100k_R64_L100_a1.2_pq32",
+      "mount_source": "/dev/md127",
+      "disk": "/dev/md127",
+      "model": "",
+      "rota": "0",
+      "tran": "",
+      "size": "7T",
+      "rotational": "SSD/NVMe (non-rotational)"
+    }
+  },
+  "runs": [
+    {
+      "label": "ssd-cold",
+      "L_search": 50,
+      "W": 4,
+      "io": "fadvise",
+      "num_queries": 300,
+      "1-recall@1": 1.0,
+      "10-recall@10": 0.9949999999999999,
+      "mean_latency_ms": 5.876676076247047,
+      "p50_latency_ms": 3.6145085468888283,
+      "p95_latency_ms": 4.835534607991576,
+      "p99_latency_ms": 5.373990840744226,
+      "qps": 170.11899086327736,
+      "reads_per_query": 59.11666666666667,
+      "bytes_per_query": 242141.86666666667,
+      "rounds_per_query": 16.05,
+      "expansions_per_query": 59.14,
+      "pq_dists_per_query": 1817.43,
+      "storage_read_bytes_per_query": 139236.69333333333,
+      "peak_rss_mib": 187.8515625,
+      "resident_index_ram_mib": 3.5582275390625,
+      "ram_limit_gib": 8.0,
+      "ram_limit_mechanism": "setrlimit(RLIMIT_AS)",
+      "device": "ssd",
+      "cache": "cold",
+      "fincore_before_evict": {
+        "resident_bytes": 85258240,
+        "resident_frac_index_bin": 1.0,
+        "tool": "fincore (util-linux)"
+      },
+      "fincore_before_run": {
+        "resident_bytes": 0,
+        "resident_frac_index_bin": 0.0,
+        "tool": "fincore (util-linux)"
+      }
+    },
+    {
+      "label": "ssd-warm",
+      "L_search": 50,
+      "W": 4,
+      "io": "fadvise",
+      "num_queries": 300,
+      "1-recall@1": 1.0,
+      "10-recall@10": 0.9949999999999999,
+      "mean_latency_ms": 0.9485139515406142,
+      "p50_latency_ms": 0.9298929944634438,
+      "p95_latency_ms": 1.0111948766279966,
+      "p99_latency_ms": 1.1062826809938997,
+      "qps": 1053.1804112505142,
+      "reads_per_query": 59.11666666666667,
+      "bytes_per_query": 242141.86666666667,
+      "rounds_per_query": 16.05,
+      "expansions_per_query": 59.14,
+      "pq_dists_per_query": 1817.43,
+      "storage_read_bytes_per_query": 0.0,
+      "peak_rss_mib": 159.82421875,
+      "resident_index_ram_mib": 3.5582275390625,
+      "ram_limit_gib": 8.0,
+      "ram_limit_mechanism": "setrlimit(RLIMIT_AS)",
+      "device": "ssd",
+      "cache": "warm",
+      "fincore_before_run": {
+        "resident_bytes": 45109248,
+        "resident_frac_index_bin": 0.5099,
+        "tool": "fincore (util-linux)"
+      }
+    }
+  ]
+}
